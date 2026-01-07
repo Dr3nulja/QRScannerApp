@@ -20,6 +20,9 @@ import androidx.core.content.ContextCompat;
 import com.journeyapps.barcodescanner.ScanContract;
 import com.journeyapps.barcodescanner.ScanOptions;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 
 public class MainActivity extends AppCompatActivity {
 
@@ -41,12 +44,38 @@ public class MainActivity extends AppCompatActivity {
         etQrId = findViewById(R.id.etQrId);
         btnScan = findViewById(R.id.btnScan);
 
-
         scanLauncher = registerForActivityResult(new ScanContract(), result -> {
             if (result.getContents() != null) {
-                etQrId.setText(result.getContents());
+
+                String qrText = result.getContents();
+
+                Pattern pattern = Pattern.compile("(\\d{8})");
+                Matcher matcher = pattern.matcher(qrText);
+
+                if (matcher.find()) {
+                    String onlyId = matcher.group(1);
+                    etQrId.setText(onlyId);
+                } else {
+                    etQrId.setText("Invalid QR code format");
+
+                }
             }
         });
+
+
+//        scanLauncher = registerForActivityResult(new ScanContract(), result -> {
+//            if (result.getContents() != null) {
+//
+//                String qrText = result.getContents();
+//                String onlyId = qrText.replaceAll("\\D+", "");
+//
+//                if (onlyId.length() >= 8) {
+//                    onlyId = onlyId.substring(0, 8);
+//                }
+//
+//                etQrId.setText(onlyId);
+//            }
+//        });
 
 
         btnScan.setOnClickListener(v -> startScan());
