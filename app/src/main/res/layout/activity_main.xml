@@ -15,8 +15,26 @@
             android:id="@+id/etApartment"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Номер квартиры" />
+            android:hint="Korteri Number" />
 
+        <RadioGroup
+            android:id="@+id/rgDNType"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <RadioButton
+                android:id="@+id/rgDN15"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="DN 15"
+                android:checked="true"/>
+
+            <RadioButton
+                android:id="@+id/rgDN20"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="DN 20" />
+        </RadioGroup>
 
         <RadioGroup
             android:id="@+id/rgWaterType"
@@ -28,13 +46,13 @@
                 android:id="@+id/rbCold"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Холодная" />
+                android:text="Külm" />
 
             <RadioButton
                 android:id="@+id/rbHot"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Горячая" />
+                android:text="Soe" />
         </RadioGroup>
 
         <RadioGroup
@@ -48,13 +66,13 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="80" />
-
+<!--
             <RadioButton
                 android:id="@+id/rb90"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="90" />
-
+-->
             <RadioButton
                 android:id="@+id/rb110"
                 android:layout_width="wrap_content"
@@ -62,13 +80,11 @@
                 android:text="110" />
         </RadioGroup>
 
-
-
         <EditText
             android:id="@+id/etQrId"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="ID (QR код)"
+            android:hint="ID (QR kood)"
             android:focusable="false" />
 
 
@@ -76,8 +92,83 @@
             android:id="@+id/btnScan"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Сканировать QR" />
+            android:text="Skanni QR" />
 
+        <EditText
+            android:id="@+id/etComment"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Lisa" />
+
+        <Button
+            android:id="@+id/btnPhotoBefore"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Enne foto" />
+
+        <Button
+            android:id="@+id/btnPhotoAfter"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Foto pärast" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Köök"
+            android:textStyle="bold"
+            android:layout_marginTop="16dp"/>
+
+        <RadioGroup
+            android:id="@+id/rgKitchen"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <RadioButton
+                android:id="@+id/rbKitchenFloor"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Põrand" />
+
+            <RadioButton
+                android:id="@+id/rbKitchenCeiling"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Lagi"/>
+        </RadioGroup>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Vann"
+            android:textStyle="bold"
+            android:layout_marginTop="16dp"/>
+
+        <RadioGroup
+            android:id="@+id/rgBathroom"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <RadioButton
+                android:id="@+id/rbBathroomFloor"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Põrand" />
+
+            <RadioButton
+                android:id="@+id/rbBathroomCeiling"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Lagi"/>
+        </RadioGroup>
+
+        <Button
+            android:id="@+id/btnSave"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Salvesta" />
 
     </LinearLayout>
 </ScrollView>
