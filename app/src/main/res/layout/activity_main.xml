@@ -10,6 +10,19 @@
         android:orientation="vertical"
         android:padding="16dp">
 
+        <Button
+            android:id="@+id/btnBackToList"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Tagasi" />
+
+        <TextView
+            android:id="@+id/tvHouse"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
 
         <EditText
             android:id="@+id/etApartment"
@@ -106,11 +119,29 @@
             android:layout_height="wrap_content"
             android:text="Enne foto" />
 
+        <ImageView
+            android:id="@+id/imgBefore"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:maxHeight="300dp"
+            android:adjustViewBounds="true"
+            android:scaleType="centerInside"
+            android:background="#DDDDDD" />
+
         <Button
             android:id="@+id/btnPhotoAfter"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Foto pärast" />
+
+        <ImageView
+            android:id="@+id/imgAfter"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:maxHeight="300dp"
+            android:adjustViewBounds="true"
+            android:scaleType="centerInside"
+            android:background="#DDDDDD" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -169,6 +200,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Salvesta" />
+
 
     </LinearLayout>
 </ScrollView>
