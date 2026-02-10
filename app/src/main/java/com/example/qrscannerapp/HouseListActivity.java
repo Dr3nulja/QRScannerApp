@@ -26,9 +26,9 @@ import javax.net.ssl.X509TrustManager;
 public class HouseListActivity extends AppCompatActivity {
 
     ListView listView;
-    ArrayList<String> houses = new ArrayList<>();
+    ArrayList<House> houses = new ArrayList<>();
 
-    private static final String TAG = "HouseListActivity"; // логи ошибок
+    private static final String TAG = "HouseListActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,10 +40,14 @@ public class HouseListActivity extends AppCompatActivity {
         loadHousesFromServer();
 
         listView.setOnItemClickListener((parent, view, position, id) -> {
-            String selectedHouse = houses.get(position);
+            House selectedHouse = houses.get(position);
 
             Intent intent = new Intent(this, MainActivity.class);
-            intent.putExtra("HOUSE_ADDRESS", selectedHouse);
+            intent.putExtra("HOUSE_ID", selectedHouse.id);
+            intent.putExtra(
+                    "HOUSE_ADDRESS",
+                    selectedHouse.city + ", " + selectedHouse.address
+            );
             startActivity(intent);
         });
     }
@@ -51,19 +55,19 @@ public class HouseListActivity extends AppCompatActivity {
     private void loadHousesFromServer() {
         new Thread(() -> {
             try {
-                // --- Игнорируем проверку SSL (для теста/эмулятора) ---
+                // --- SSL IGNORE (ТОЛЬКО ДЛЯ ТЕСТОВ) ---
                 TrustManager[] trustAllCerts = new TrustManager[]{
                         new X509TrustManager() {
                             public X509Certificate[] getAcceptedIssuers() { return new X509Certificate[0]; }
-                            public void checkClientTrusted(X509Certificate[] certs, String authType) { }
-                            public void checkServerTrusted(X509Certificate[] certs, String authType) { }
+                            public void checkClientTrusted(X509Certificate[] certs, String authType) {}
+                            public void checkServerTrusted(X509Certificate[] certs, String authType) {}
                         }
                 };
                 SSLContext sc = SSLContext.getInstance("SSL");
                 sc.init(null, trustAllCerts, new java.security.SecureRandom());
                 HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
                 HttpsURLConnection.setDefaultHostnameVerifier((hostname, session) -> true);
-                // ---------------------------------------------------------
+                // -------------------------------------
 
                 URL url = new URL("https://arvestused.agr-torud.ee/get_house_list");
                 HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
@@ -87,25 +91,35 @@ public class HouseListActivity extends AppCompatActivity {
 
                 for (int i = 0; i < array.length(); i++) {
                     JSONObject obj = array.getJSONObject(i);
-                    String city = obj.getString("City");
-                    String address = obj.getString("address");
-                    houses.add(city + ", " + address);
+
+                    House house = new House();
+                    house.id = obj.getInt("id");
+                    house.city = obj.getString("City");
+                    house.address = obj.getString("address");
+
+                    houses.add(house);
+
+                    // 🔴 ОТЛАДКА (можно удалить)
+                    Log.d(TAG, "Loaded house id=" + house.id);
                 }
 
                 runOnUiThread(() -> {
-                    ArrayAdapter<String> adapter =
-                            new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, houses);
+                    ArrayAdapter<House> adapter =
+                            new ArrayAdapter<>(
+                                    this,
+                                    android.R.layout.simple_list_item_1,
+                                    houses
+                            );
                     listView.setAdapter(adapter);
                 });
 
             } catch (Exception e) {
-                e.printStackTrace(); // вывод полной ошибки в Logcat
-                Log.e(TAG, "Viga majade laadimisel " + e.getMessage());
+                Log.e(TAG, "Ошибка загрузки домов", e);
 
                 runOnUiThread(() ->
                         Toast.makeText(
                                 this,
-                                "Viga majade laadimisel " + e.getMessage(),
+                                "Ошибка загрузки домов",
                                 Toast.LENGTH_LONG
                         ).show()
                 );

@@ -6,6 +6,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -23,7 +24,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class MainActivity extends AppCompatActivity {
-
+    private int houseId;
     private EditText etApartment, etQrId;
     private Button btnScan;
     private TextView tvHouse;
@@ -105,6 +106,16 @@ public class MainActivity extends AppCompatActivity {
         if (house != null) {
             tvHouse.setText(house);
         }
+
+        houseId = getIntent().getIntExtra("HOUSE_ID", -1);
+
+        if (houseId == -1) {
+            Log.e("MainActivity", "HOUSE_ID not passed");
+        } else {
+            Log.d("MainActivity", "HOUSE_ID = " + houseId);
+        }
+
+
     }
 
     private void startScan() {
