@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:fillViewport="true">
 
 
     <LinearLayout
@@ -123,10 +125,10 @@
             android:id="@+id/imgBefore"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:maxHeight="300dp"
+            android:maxHeight="350dp"
             android:adjustViewBounds="true"
-            android:scaleType="centerInside"
-            android:background="#DDDDDD" />
+            android:scaleType="fitCenter"
+            android:background="#DDDDDD"/>
 
         <Button
             android:id="@+id/btnPhotoAfter"
@@ -138,10 +140,10 @@
             android:id="@+id/imgAfter"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:maxHeight="300dp"
+            android:maxHeight="350dp"
             android:adjustViewBounds="true"
-            android:scaleType="centerInside"
-            android:background="#DDDDDD" />
+            android:scaleType="fitCenter"
+            android:background="#DDDDDD"/>
 
         <TextView
             android:layout_width="wrap_content"
@@ -197,8 +199,10 @@
 
         <Button
             android:id="@+id/btnSave"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="32dp"
             android:text="Salvesta" />
 
 

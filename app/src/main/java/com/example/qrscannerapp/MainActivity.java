@@ -6,11 +6,9 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.util.Base64;
 import android.util.Log;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.TextView;
+import android.widget.*;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -20,18 +18,26 @@ import androidx.core.content.ContextCompat;
 import com.journeyapps.barcodescanner.ScanContract;
 import com.journeyapps.barcodescanner.ScanOptions;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLEncoder;
 
 public class MainActivity extends AppCompatActivity {
-    private int houseId;
-    private EditText etApartment, etQrId;
-    private Button btnScan;
+
+    private EditText etApartment, etQrId, etComment;
     private TextView tvHouse;
 
-    private Button btnPhotoBefore, btnPhotoAfter;
+    private RadioGroup rgDNType, rgWaterType, rgSize, rgKitchen, rgBathroom;
+
     private ImageView imgBefore, imgAfter;
+    private Bitmap beforeBitmap, afterBitmap;
     private boolean isBeforePhoto = true;
+
+    private int houseId;
 
     private ActivityResultLauncher<ScanOptions> scanLauncher;
 
@@ -40,20 +46,19 @@ public class MainActivity extends AppCompatActivity {
                     new ActivityResultContracts.StartActivityForResult(),
                     result -> {
                         if (result.getResultCode() == RESULT_OK && result.getData() != null) {
-                            Bundle extras = result.getData().getExtras();
-                            Bitmap image = (Bitmap) extras.get("data");
-
-                            Bitmap scaledImage = Bitmap.createScaledBitmap(image, 600, 800, true);
+                            Bitmap image = (Bitmap) result.getData().getExtras().get("data");
+                            Bitmap scaled = Bitmap.createScaledBitmap(image, 600, 800, true);
 
                             if (isBeforePhoto) {
-                                imgBefore.setImageBitmap(scaledImage);
+                                beforeBitmap = scaled;
+                                imgBefore.setImageBitmap(scaled);
                             } else {
-                                imgAfter.setImageBitmap(scaledImage);
+                                afterBitmap = scaled;
+                                imgAfter.setImageBitmap(scaled);
                             }
                         }
                     }
             );
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,13 +67,22 @@ public class MainActivity extends AppCompatActivity {
 
         etApartment = findViewById(R.id.etApartment);
         etQrId = findViewById(R.id.etQrId);
-        btnScan = findViewById(R.id.btnScan);
+        etComment = findViewById(R.id.etComment);
         tvHouse = findViewById(R.id.tvHouse);
 
-        btnPhotoBefore = findViewById(R.id.btnPhotoBefore);
-        btnPhotoAfter = findViewById(R.id.btnPhotoAfter);
+        rgDNType = findViewById(R.id.rgDNType);
+        rgWaterType = findViewById(R.id.rgWaterType);
+        rgSize = findViewById(R.id.rgSize);
+        rgKitchen = findViewById(R.id.rgKitchen);
+        rgBathroom = findViewById(R.id.rgBathroom);
+
         imgBefore = findViewById(R.id.imgBefore);
         imgAfter = findViewById(R.id.imgAfter);
+
+        Button btnPhotoBefore = findViewById(R.id.btnPhotoBefore);
+        Button btnPhotoAfter = findViewById(R.id.btnPhotoAfter);
+        Button btnScan = findViewById(R.id.btnScan);
+        Button btnSave = findViewById(R.id.btnSave);
 
         btnPhotoBefore.setOnClickListener(v -> {
             isBeforePhoto = true;
@@ -81,50 +95,45 @@ public class MainActivity extends AppCompatActivity {
         });
 
         scanLauncher = registerForActivityResult(new ScanContract(), result -> {
-            if (result.getContents() != null) {
-                String qrText = result.getContents();
-                Pattern pattern = Pattern.compile("(\\d{8})");
-                Matcher matcher = pattern.matcher(qrText);
-
-                if (matcher.find()) {
-                    String onlyId = matcher.group(1);
-                    etQrId.setText(onlyId);
-                } else {
-                    etQrId.setText("Invalid QR code format");
+            if(result.getContents() != null){
+                String qr = result.getContents();
+                String processed = "";
+                if (qr.contains("-") && qr.contains("/")) {
+                    int dashIndex = qr.indexOf("-");
+                    int slashIndex = qr.indexOf("/");
+                    if (dashIndex < slashIndex) {
+                        processed = qr.substring(dashIndex + 1, slashIndex);
+                    }
                 }
+                etQrId.setText(processed);
+                Toast.makeText(this, "QR: " + processed, Toast.LENGTH_SHORT).show();
             }
         });
 
         btnScan.setOnClickListener(v -> startScan());
-
-        requestCameraPermission();
-
-        Button btnBackToList = findViewById(R.id.btnBackToList);
-        btnBackToList.setOnClickListener(v -> finish());
-
-        String house = getIntent().getStringExtra("HOUSE_ADDRESS");
-        if (house != null) {
-            tvHouse.setText(house);
-        }
+        btnSave.setOnClickListener(v -> sendPost());
 
         houseId = getIntent().getIntExtra("HOUSE_ID", -1);
+        String houseAddress = getIntent().getStringExtra("HOUSE_ADDRESS");
 
-        if (houseId == -1) {
-            Log.e("MainActivity", "HOUSE_ID not passed");
-        } else {
-            Log.d("MainActivity", "HOUSE_ID = " + houseId);
+        if (houseAddress != null) {
+            tvHouse.setText(houseAddress);
         }
 
-
+        requestCameraPermission();
     }
 
     private void startScan() {
         ScanOptions options = new ScanOptions();
-        options.setPrompt("Suuna kaamera QR-koodi poole");
+        options.setPrompt("Skanni QR");
         options.setBeepEnabled(true);
         options.setOrientationLocked(true);
-        options.setCaptureActivity(com.journeyapps.barcodescanner.CaptureActivity.class);
         scanLauncher.launch(options);
+    }
+
+    private void openCamera() {
+        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        cameraLauncher.launch(intent);
     }
 
     private void requestCameraPermission() {
@@ -134,8 +143,71 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void openCamera() {
-        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        cameraLauncher.launch(intent);
+    private String getSelectedText(RadioGroup group) {
+        int id = group.getCheckedRadioButtonId();
+        if (id == -1) return "";
+        RadioButton rb = findViewById(id);
+        return rb.getText().toString();
+    }
+
+    private String bitmapToBase64(Bitmap bitmap) {
+        if (bitmap == null) return "";
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 80, baos);
+        return Base64.encodeToString(baos.toByteArray(), Base64.DEFAULT);
+    }
+
+    private void sendPost() {
+
+        new Thread(() -> {
+            try {
+                String apartment = etApartment.getText().toString();
+                String qrId = etQrId.getText().toString();
+                String comment = etComment.getText().toString();
+
+                String dn = getSelectedText(rgDNType);
+                String water = getSelectedText(rgWaterType);
+                String size = getSelectedText(rgSize);
+                String kitchen = getSelectedText(rgKitchen);
+                String bathroom = getSelectedText(rgBathroom);
+
+                String beforeImage = bitmapToBase64(beforeBitmap);
+                String afterImage = bitmapToBase64(afterBitmap);
+
+                String postData =
+                        "house_id=" + URLEncoder.encode(String.valueOf(houseId), "UTF-8") +
+                                "&apartment=" + URLEncoder.encode(apartment, "UTF-8") +
+                                "&qr_id=" + URLEncoder.encode(qrId, "UTF-8") +
+                                "&comment=" + URLEncoder.encode(comment, "UTF-8") +
+                                "&dn_type=" + URLEncoder.encode(dn, "UTF-8") +
+                                "&water_type=" + URLEncoder.encode(water, "UTF-8") +
+                                "&size=" + URLEncoder.encode(size, "UTF-8") +
+                                "&kitchen=" + URLEncoder.encode(kitchen, "UTF-8") +
+                                "&bathroom=" + URLEncoder.encode(bathroom, "UTF-8") +
+                                "&photo_before=" + URLEncoder.encode(beforeImage, "UTF-8") +
+                                "&photo_after=" + URLEncoder.encode(afterImage, "UTF-8");
+
+                URL url = new URL("https://arvestused.agr-torud.ee/insert_dev_data");
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                conn.setRequestMethod("POST");
+                conn.setDoOutput(true);
+                conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+
+                OutputStream os = conn.getOutputStream();
+                os.write(postData.getBytes());
+                os.flush();
+                os.close();
+
+                runOnUiThread(() ->
+                        Toast.makeText(this, "Andmed saadetud!", Toast.LENGTH_LONG).show()
+                );
+
+            } catch (Exception e) {
+                Log.e("POST", "Ошибка при POST", e);
+                runOnUiThread(() ->
+                        Toast.makeText(this, "Viga saatmisel", Toast.LENGTH_LONG).show()
+                );
+            }
+        }).start();
     }
 }
