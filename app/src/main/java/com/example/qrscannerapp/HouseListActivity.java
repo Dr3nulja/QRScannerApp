@@ -55,19 +55,19 @@ public class HouseListActivity extends AppCompatActivity {
     private void loadHousesFromServer() {
         new Thread(() -> {
             try {
-                // --- SSL IGNORE (ТОЛЬКО ДЛЯ ТЕСТОВ) ---
-                TrustManager[] trustAllCerts = new TrustManager[]{
-                        new X509TrustManager() {
-                            public X509Certificate[] getAcceptedIssuers() { return new X509Certificate[0]; }
-                            public void checkClientTrusted(X509Certificate[] certs, String authType) {}
-                            public void checkServerTrusted(X509Certificate[] certs, String authType) {}
-                        }
-                };
-                SSLContext sc = SSLContext.getInstance("SSL");
-                sc.init(null, trustAllCerts, new java.security.SecureRandom());
-                HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
-                HttpsURLConnection.setDefaultHostnameVerifier((hostname, session) -> true);
-                // -------------------------------------
+//                // --- SSL IGNORE (ТОЛЬКО ДЛЯ ТЕСТОВ) ---
+//                TrustManager[] trustAllCerts = new TrustManager[]{
+//                        new X509TrustManager() {
+//                            public X509Certificate[] getAcceptedIssuers() { return new X509Certificate[0]; }
+//                            public void checkClientTrusted(X509Certificate[] certs, String authType) {}
+//                            public void checkServerTrusted(X509Certificate[] certs, String authType) {}
+//                        }
+//                };
+//                SSLContext sc = SSLContext.getInstance("SSL");
+//                sc.init(null, trustAllCerts, new java.security.SecureRandom());
+//                HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
+//                HttpsURLConnection.setDefaultHostnameVerifier((hostname, session) -> true);
+//                // -------------------------------------
 
                 URL url = new URL("https://arvestused.agr-torud.ee/get_house_list");
                 HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();

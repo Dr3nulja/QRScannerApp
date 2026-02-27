@@ -18,9 +18,7 @@ import androidx.core.content.ContextCompat;
 import com.journeyapps.barcodescanner.ScanContract;
 import com.journeyapps.barcodescanner.ScanOptions;
 
-import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -143,13 +141,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private String getSelectedText(RadioGroup group) {
-        int id = group.getCheckedRadioButtonId();
-        if (id == -1) return "";
-        RadioButton rb = findViewById(id);
-        return rb.getText().toString();
-    }
-
     private String bitmapToBase64(Bitmap bitmap) {
         if (bitmap == null) return "";
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -165,8 +156,16 @@ public class MainActivity extends AppCompatActivity {
                 String qrId = etQrId.getText().toString();
                 String comment = etComment.getText().toString();
 
-                String dn = getSelectedText(rgDNType);
-                String water = getSelectedText(rgWaterType);
+                int dnType = 15;
+                if (rgDNType.getCheckedRadioButtonId() == R.id.rgDN20) {
+                    dnType = 20;
+                }
+
+                int waterType = 1; //Kulm
+                if (rgWaterType.getCheckedRadioButtonId() == R.id.rbHot) {
+                    waterType = 2; //Soe
+                }
+
                 String size = getSelectedText(rgSize);
                 String kitchen = getSelectedText(rgKitchen);
                 String bathroom = getSelectedText(rgBathroom);
@@ -175,12 +174,12 @@ public class MainActivity extends AppCompatActivity {
                 String afterImage = bitmapToBase64(afterBitmap);
 
                 String postData =
-                        "house_id=" + URLEncoder.encode(String.valueOf(houseId), "UTF-8") +
+                        "house_id=" + houseId +
                                 "&apartment=" + URLEncoder.encode(apartment, "UTF-8") +
                                 "&qr_id=" + URLEncoder.encode(qrId, "UTF-8") +
                                 "&comment=" + URLEncoder.encode(comment, "UTF-8") +
-                                "&dn_type=" + URLEncoder.encode(dn, "UTF-8") +
-                                "&water_type=" + URLEncoder.encode(water, "UTF-8") +
+                                "&dn_type=" + dnType +
+                                "&water_type=" + waterType +
                                 "&size=" + URLEncoder.encode(size, "UTF-8") +
                                 "&kitchen=" + URLEncoder.encode(kitchen, "UTF-8") +
                                 "&bathroom=" + URLEncoder.encode(bathroom, "UTF-8") +
@@ -203,11 +202,18 @@ public class MainActivity extends AppCompatActivity {
                 );
 
             } catch (Exception e) {
-                Log.e("POST", "Ошибка при POST", e);
+                Log.e("POST", "Post error", e);
                 runOnUiThread(() ->
                         Toast.makeText(this, "Viga saatmisel", Toast.LENGTH_LONG).show()
                 );
             }
         }).start();
+    }
+
+    private String getSelectedText(RadioGroup group) {
+        int id = group.getCheckedRadioButtonId();
+        if (id == -1) return "";
+        RadioButton rb = findViewById(id);
+        return rb.getText().toString();
     }
 }
