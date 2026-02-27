@@ -81,6 +81,10 @@ public class MainActivity extends AppCompatActivity {
         Button btnPhotoAfter = findViewById(R.id.btnPhotoAfter);
         Button btnScan = findViewById(R.id.btnScan);
         Button btnSave = findViewById(R.id.btnSave);
+        Button btnBack = findViewById(R.id.btnBackToList);
+        btnBack.setOnClickListener(v -> {
+            finish();
+        });
 
         btnPhotoBefore.setOnClickListener(v -> {
             isBeforePhoto = true;
@@ -110,6 +114,21 @@ public class MainActivity extends AppCompatActivity {
 
         btnScan.setOnClickListener(v -> startScan());
         btnSave.setOnClickListener(v -> sendPost());
+
+        Button btnClear = findViewById(R.id.btnClear);
+        btnClear.setOnClickListener(v -> {
+            etQrId.setText("");
+            etComment.setText("");
+            rgDNType.clearCheck();
+            rgWaterType.clearCheck();
+            rgSize.clearCheck();
+            rgKitchen.clearCheck();
+            rgBathroom.clearCheck();
+            beforeBitmap = null;
+            afterBitmap = null;
+            imgBefore.setImageDrawable(null);
+            imgAfter.setImageDrawable(null);
+        });
 
         houseId = getIntent().getIntExtra("HOUSE_ID", -1);
         String houseAddress = getIntent().getStringExtra("HOUSE_ADDRESS");
@@ -152,6 +171,7 @@ public class MainActivity extends AppCompatActivity {
 
         new Thread(() -> {
             try {
+
                 String apartment = etApartment.getText().toString();
                 String qrId = etQrId.getText().toString();
                 String comment = etComment.getText().toString();
@@ -161,9 +181,9 @@ public class MainActivity extends AppCompatActivity {
                     dnType = 20;
                 }
 
-                int waterType = 1; //Kulm
+                int waterType = 1; // külm
                 if (rgWaterType.getCheckedRadioButtonId() == R.id.rbHot) {
-                    waterType = 2; //Soe
+                    waterType = 2; // soe
                 }
 
                 String size = getSelectedText(rgSize);
@@ -174,7 +194,7 @@ public class MainActivity extends AppCompatActivity {
                 String afterImage = bitmapToBase64(afterBitmap);
 
                 String postData =
-                        "house_id=" + houseId +
+                        "house_id=" + URLEncoder.encode(String.valueOf(houseId), "UTF-8") +
                                 "&apartment=" + URLEncoder.encode(apartment, "UTF-8") +
                                 "&qr_id=" + URLEncoder.encode(qrId, "UTF-8") +
                                 "&comment=" + URLEncoder.encode(comment, "UTF-8") +
@@ -186,23 +206,59 @@ public class MainActivity extends AppCompatActivity {
                                 "&photo_before=" + URLEncoder.encode(beforeImage, "UTF-8") +
                                 "&photo_after=" + URLEncoder.encode(afterImage, "UTF-8");
 
+                Log.d("POST_DATA", postData);
+
                 URL url = new URL("https://arvestused.agr-torud.ee/insert_dev_data");
                 HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+
                 conn.setRequestMethod("POST");
                 conn.setDoOutput(true);
+                conn.setConnectTimeout(15000);
+                conn.setReadTimeout(15000);
                 conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
 
                 OutputStream os = conn.getOutputStream();
-                os.write(postData.getBytes());
+                os.write(postData.getBytes("UTF-8"));
                 os.flush();
                 os.close();
 
-                runOnUiThread(() ->
-                        Toast.makeText(this, "Andmed saadetud!", Toast.LENGTH_LONG).show()
-                );
+                int responseCode = conn.getResponseCode();
+                Log.d("POST", "Response code: " + responseCode);
+
+                java.io.InputStream is;
+
+                if (responseCode >= 200 && responseCode < 400) {
+                    is = conn.getInputStream();
+                } else {
+                    is = conn.getErrorStream();
+                }
+
+                java.io.BufferedReader reader =
+                        new java.io.BufferedReader(new java.io.InputStreamReader(is));
+
+                StringBuilder response = new StringBuilder();
+                String line;
+
+                while ((line = reader.readLine()) != null) {
+                    response.append(line);
+                }
+
+                reader.close();
+                conn.disconnect();
+
+                Log.d("SERVER_RESPONSE", response.toString());
+
+                runOnUiThread(() -> {
+                    if (responseCode == 200) {
+                        Toast.makeText(this, "Andmed saadetud!", Toast.LENGTH_LONG).show();
+                    } else {
+                        Toast.makeText(this, "Server error: " + responseCode, Toast.LENGTH_LONG).show();
+                    }
+                });
 
             } catch (Exception e) {
-                Log.e("POST", "Post error", e);
+                Log.e("POST_ERROR", "Send error", e);
+
                 runOnUiThread(() ->
                         Toast.makeText(this, "Viga saatmisel", Toast.LENGTH_LONG).show()
                 );
