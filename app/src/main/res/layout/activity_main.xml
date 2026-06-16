@@ -355,31 +355,33 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:orientation="vertical">
+                    android:orientation="horizontal">
 
                     <RadioButton
                         android:id="@+id/rbCold"
-                        android:layout_width="match_parent"
+                        android:layout_width="0dp"
                         android:layout_height="56dp"
-                        android:background="@color/elder_surface_soft"
-                        android:buttonTint="@color/elder_primary"
+                        android:layout_weight="1"
+                        android:background="@color/water_cold_bg"
+                        android:buttonTint="@color/white"
                         android:gravity="center_vertical"
                         android:paddingStart="16dp"
+                        android:textColor="@color/white"
                         android:text="@string/water_cold"
-                        android:textColor="@color/elder_text"
                         android:textSize="18sp" />
 
                     <RadioButton
                         android:id="@+id/rbHot"
-                        android:layout_width="match_parent"
+                        android:layout_width="0dp"
                         android:layout_height="56dp"
-                        android:layout_marginTop="8dp"
-                        android:background="@color/elder_surface_soft"
-                        android:buttonTint="@color/elder_primary"
+                        android:layout_marginStart="12dp"
+                        android:layout_weight="1"
+                        android:background="@color/water_hot_bg"
+                        android:buttonTint="@color/white"
                         android:gravity="center_vertical"
                         android:paddingStart="16dp"
+                        android:textColor="@color/white"
                         android:text="@string/water_hot"
-                        android:textColor="@color/elder_text"
                         android:textSize="18sp" />
                 </RadioGroup>
 
