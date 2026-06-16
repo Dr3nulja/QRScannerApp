@@ -1,7 +1,15 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
     <style name="Base.Theme.QRScannerApp" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your dark theme here. -->
-        <!-- <item name="colorPrimary">@color/my_dark_primary</item> -->
+        <item name="colorPrimary">@color/elder_primary</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorPrimaryContainer">@color/elder_primary_dark</item>
+        <item name="colorSecondary">@color/elder_accent</item>
+        <item name="colorOnSecondary">@color/black</item>
+        <item name="colorSurface">#FF111922</item>
+        <item name="colorOnSurface">@color/white</item>
+        <item name="colorSurfaceVariant">#FF172230</item>
+        <item name="android:colorBackground">#FF0B1118</item>
+        <item name="android:statusBarColor">#FF071018</item>
+        <item name="android:navigationBarColor">#FF0B1118</item>
     </style>
 </resources>

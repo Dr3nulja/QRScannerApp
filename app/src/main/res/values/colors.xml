@@ -1,5 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="black">#FF000000</color>
+    <color name="black">#FF0F1720</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="elder_bg">#FFF4F7FB</color>
+    <color name="elder_surface">#FFFFFFFF</color>
+    <color name="elder_surface_soft">#FFE9F0F8</color>
+    <color name="elder_primary">#FF185EAA</color>
+    <color name="elder_primary_dark">#FF0F3F73</color>
+    <color name="elder_accent">#FFF29F05</color>
+    <color name="elder_text">#FF102030</color>
+    <color name="elder_text_muted">#FF5A6675</color>
+    <color name="elder_success">#FF1E8E5A</color>
+    <color name="elder_danger">#FFD94A38</color>
 </resources>
