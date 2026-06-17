@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/mainScroll"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/elder_bg"
@@ -89,7 +90,7 @@
                     android:background="@android:drawable/edit_text"
                     android:hint="@string/hint_apartment"
                     android:importantForAutofill="yes"
-                    android:inputType="number"
+                    android:inputType="text"
                     android:padding="16dp"
                     android:textColor="@color/elder_text"
                     android:textColorHint="@color/elder_text_muted"

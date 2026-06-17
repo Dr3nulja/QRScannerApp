@@ -3,6 +3,7 @@ package com.example.qrscannerapp;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -13,6 +14,9 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -40,6 +44,23 @@ public class HouseListActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_house_list);
+
+        View houseListRoot = findViewById(R.id.houseListRoot);
+        final int initialPaddingLeft = houseListRoot.getPaddingLeft();
+        final int initialPaddingTop = houseListRoot.getPaddingTop();
+        final int initialPaddingRight = houseListRoot.getPaddingRight();
+        final int initialPaddingBottom = houseListRoot.getPaddingBottom();
+        ViewCompat.setOnApplyWindowInsetsListener(houseListRoot, (view, insets) -> {
+            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            view.setPadding(
+                    initialPaddingLeft + systemBars.left,
+                    initialPaddingTop + systemBars.top,
+                    initialPaddingRight + systemBars.right,
+                    initialPaddingBottom + systemBars.bottom
+            );
+            return insets;
+        });
+        ViewCompat.requestApplyInsets(houseListRoot);
 
         listView = findViewById(R.id.listHouses);
         tvLoading = findViewById(R.id.tvLoading);
