@@ -312,30 +312,32 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:orientation="vertical">
+                    android:orientation="horizontal">
 
                     <RadioButton
                         android:id="@+id/rgDN15"
-                        android:layout_width="match_parent"
+                        android:layout_width="0dp"
                         android:layout_height="56dp"
-                        android:background="@color/elder_surface_soft"
+                        android:layout_weight="1"
+                        android:background="@drawable/btn_selection_gray_rounded"
                         android:buttonTint="@color/elder_primary"
                         android:checked="true"
                         android:gravity="center_vertical"
-                        android:paddingStart="16dp"
+                        android:paddingStart="18dp"
                         android:text="@string/dn_15"
                         android:textColor="@color/elder_text"
                         android:textSize="18sp" />
 
                     <RadioButton
                         android:id="@+id/rgDN20"
-                        android:layout_width="match_parent"
+                        android:layout_width="0dp"
                         android:layout_height="56dp"
-                        android:layout_marginTop="8dp"
-                        android:background="@color/elder_surface_soft"
+                        android:layout_marginStart="12dp"
+                        android:layout_weight="1"
+                        android:background="@drawable/btn_selection_gray_rounded"
                         android:buttonTint="@color/elder_primary"
                         android:gravity="center_vertical"
-                        android:paddingStart="16dp"
+                        android:paddingStart="18dp"
                         android:text="@string/dn_20"
                         android:textColor="@color/elder_text"
                         android:textSize="18sp" />
@@ -362,10 +364,10 @@
                         android:layout_width="0dp"
                         android:layout_height="56dp"
                         android:layout_weight="1"
-                        android:background="@color/water_cold_bg"
+                        android:background="@drawable/btn_selection_water_cold_rounded"
                         android:buttonTint="@color/white"
                         android:gravity="center_vertical"
-                        android:paddingStart="16dp"
+                        android:paddingStart="18dp"
                         android:textColor="@color/white"
                         android:text="@string/water_cold"
                         android:textSize="18sp" />
@@ -376,10 +378,10 @@
                         android:layout_height="56dp"
                         android:layout_marginStart="12dp"
                         android:layout_weight="1"
-                        android:background="@color/water_hot_bg"
+                        android:background="@drawable/btn_selection_water_hot_rounded"
                         android:buttonTint="@color/white"
                         android:gravity="center_vertical"
-                        android:paddingStart="16dp"
+                        android:paddingStart="18dp"
                         android:textColor="@color/white"
                         android:text="@string/water_hot"
                         android:textSize="18sp" />
@@ -399,29 +401,31 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:orientation="vertical">
+                    android:orientation="horizontal">
 
                     <RadioButton
                         android:id="@+id/rb80"
-                        android:layout_width="match_parent"
+                        android:layout_width="0dp"
                         android:layout_height="56dp"
-                        android:background="@color/elder_surface_soft"
+                        android:layout_weight="1"
+                        android:background="@drawable/btn_selection_gray_rounded"
                         android:buttonTint="@color/elder_primary"
                         android:gravity="center_vertical"
-                        android:paddingStart="16dp"
+                        android:paddingStart="18dp"
                         android:text="@string/size_80"
                         android:textColor="@color/elder_text"
                         android:textSize="18sp" />
 
                     <RadioButton
                         android:id="@+id/rb110"
-                        android:layout_width="match_parent"
+                        android:layout_width="0dp"
                         android:layout_height="56dp"
-                        android:layout_marginTop="8dp"
-                        android:background="@color/elder_surface_soft"
+                        android:layout_marginStart="12dp"
+                        android:layout_weight="1"
+                        android:background="@drawable/btn_selection_gray_rounded"
                         android:buttonTint="@color/elder_primary"
                         android:gravity="center_vertical"
-                        android:paddingStart="16dp"
+                        android:paddingStart="18dp"
                         android:text="@string/size_110"
                         android:textColor="@color/elder_text"
                         android:textSize="18sp" />
@@ -441,29 +445,31 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:orientation="vertical">
+                    android:orientation="horizontal">
 
                     <RadioButton
                         android:id="@+id/rbKitchenFloor"
-                        android:layout_width="match_parent"
+                        android:layout_width="0dp"
                         android:layout_height="56dp"
-                        android:background="@color/elder_surface_soft"
+                        android:layout_weight="1"
+                        android:background="@drawable/btn_selection_gray_rounded"
                         android:buttonTint="@color/elder_primary"
                         android:gravity="center_vertical"
-                        android:paddingStart="16dp"
+                        android:paddingStart="18dp"
                         android:text="@string/room_floor"
                         android:textColor="@color/elder_text"
                         android:textSize="18sp" />
 
                     <RadioButton
                         android:id="@+id/rbKitchenCeiling"
-                        android:layout_width="match_parent"
+                        android:layout_width="0dp"
                         android:layout_height="56dp"
-                        android:layout_marginTop="8dp"
-                        android:background="@color/elder_surface_soft"
+                        android:layout_marginStart="12dp"
+                        android:layout_weight="1"
+                        android:background="@drawable/btn_selection_gray_rounded"
                         android:buttonTint="@color/elder_primary"
                         android:gravity="center_vertical"
-                        android:paddingStart="16dp"
+                        android:paddingStart="18dp"
                         android:text="@string/room_ceiling"
                         android:textColor="@color/elder_text"
                         android:textSize="18sp" />
@@ -483,29 +489,31 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:orientation="vertical">
+                    android:orientation="horizontal">
 
                     <RadioButton
                         android:id="@+id/rbBathroomFloor"
-                        android:layout_width="match_parent"
+                        android:layout_width="0dp"
                         android:layout_height="56dp"
-                        android:background="@color/elder_surface_soft"
+                        android:layout_weight="1"
+                        android:background="@drawable/btn_selection_gray_rounded"
                         android:buttonTint="@color/elder_primary"
                         android:gravity="center_vertical"
-                        android:paddingStart="16dp"
+                        android:paddingStart="18dp"
                         android:text="@string/room_floor"
                         android:textColor="@color/elder_text"
                         android:textSize="18sp" />
 
                     <RadioButton
                         android:id="@+id/rbBathroomCeiling"
-                        android:layout_width="match_parent"
+                        android:layout_width="0dp"
                         android:layout_height="56dp"
-                        android:layout_marginTop="8dp"
-                        android:background="@color/elder_surface_soft"
+                        android:layout_marginStart="12dp"
+                        android:layout_weight="1"
+                        android:background="@drawable/btn_selection_gray_rounded"
                         android:buttonTint="@color/elder_primary"
                         android:gravity="center_vertical"
-                        android:paddingStart="16dp"
+                        android:paddingStart="18dp"
                         android:text="@string/room_ceiling"
                         android:textColor="@color/elder_text"
                         android:textSize="18sp" />

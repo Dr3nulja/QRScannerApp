@@ -12,6 +12,7 @@
     <color name="elder_text_muted">#FF5A6675</color>
     <color name="elder_success">#FF1E8E5A</color>
     <color name="elder_danger">#FFD94A38</color>
+    <color name="elder_surface_soft_button">#FFD8E1EB</color>
     <color name="water_cold_bg">#FF2B78D4</color>
     <color name="water_hot_bg">#FFCC3B2E</color>
 </resources>
