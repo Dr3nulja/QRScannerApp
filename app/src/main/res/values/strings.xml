@@ -6,23 +6,32 @@
     <string name="main_title">Andmete sisestamine</string>
     <string name="main_subtitle">Täida samm-sammult. Kui mõni lahter jääb tühjaks, saad hiljem juurde lisada.</string>
     <string name="selected_house_label">Valitud maja</string>
-    <string name="section_apartment">1. Korteri ja koodi andmed</string>
-    <string name="section_photos">2. Pildid</string>
-    <string name="section_options">3. Valikud</string>
-    <string name="section_comment">Märkus</string>
-    <string name="section_kitchen">Köök</string>
-    <string name="section_bathroom">Vannituba</string>
+
+    <string name="section_device_type">1. Seadme tüüp</string>
+    <string name="device_allocator">Soojusjaotur</string>
+    <string name="device_water_meter">Veearvesti</string>
+
+    <string name="section_action">2. Toiming</string>
+    <string name="action_install">Paigaldus</string>
+    <string name="action_replace">Vahetus</string>
+
+    <string name="section_apartment">3. Korteri ja koodi andmed</string>
     <string name="hint_apartment">Korteri number</string>
     <string name="hint_qr">QR-koodi ID</string>
-    <string name="hint_comment">Lisa vajadusel selgitus</string>
+    <string name="hint_qr_manual">Sisesta QR-koodi number käsitsi</string>
+    <string name="btn_scan">Skanni QR</string>
+
+    <string name="hint_last_reading">Viimane näit enne vahetust</string>
+
+    <string name="section_photos">4. Pildid</string>
     <string name="hint_before">Enne tööde pilt</string>
     <string name="hint_after">Pärast tööde pilt</string>
-    <string name="btn_scan">Skanni QR</string>
     <string name="btn_photo_before">Tee enne foto</string>
     <string name="btn_photo_after">Tee pärast foto</string>
-    <string name="btn_save">Salvesta andmed</string>
-    <string name="btn_clear">Tühjenda vorm</string>
-    <string name="btn_back">Tagasi majade nimekirja</string>
+    <string name="hint_photo_before_comment">Märkus enne pildi kohta</string>
+    <string name="hint_photo_after_comment">Märkus pärast pildi kohta</string>
+
+    <string name="section_options">5. Valikud</string>
     <string name="dn_type_title">Toru tüüp</string>
     <string name="water_type_title">Vee tüüp</string>
     <string name="size_title">Suurus</string>
@@ -32,10 +41,59 @@
     <string name="water_hot">Soe vesi</string>
     <string name="size_80">80</string>
     <string name="size_110">110</string>
+
+    <string name="section_kitchen">Köök</string>
+    <string name="section_bathroom">Vannituba</string>
     <string name="room_floor">Põrand</string>
     <string name="room_ceiling">Lagi</string>
+    <string name="hint_kitchen_comment">Köögi märkus</string>
+    <string name="hint_bathroom_comment">Vannitoa märkus</string>
+
+    <string name="section_allocator_location">Jaoturi asukoht korteris</string>
+    <string name="location_kitchen">Köök</string>
+    <string name="location_room_1">Tuba 1</string>
+    <string name="location_room_2">Tuba 2</string>
+    <string name="location_room_3">Tuba 3</string>
+    <string name="location_room_4">Tuba 4</string>
+    <string name="hint_location_comment">Täpsusta asukohta</string>
+
+    <string name="section_radiator_type">Radiaatori tüüp</string>
+    <string name="hint_radiator_type_other">Sisesta radiaatori tüüp</string>
+
+    <string name="section_radiator_size">Radiaatori mõõdud</string>
+    <string name="label_radiator_width">Laius</string>
+    <string name="label_radiator_depth">Sügavus</string>
+    <string name="label_radiator_length">Pikkus</string>
+    <string name="hint_radiator_width_other">Sisesta laius</string>
+    <string name="hint_radiator_depth_other">Sisesta sügavus</string>
+    <string name="hint_radiator_length_other">Sisesta pikkus</string>
+    <string name="dim_other">Muu</string>
+
+    <string name="hint_allocator_comment">Jaoturi märkus</string>
+
+    <string name="section_signature">6. Omaniku allkiri</string>
+    <string name="label_sign_hint">Allkirjastage sõrmega</string>
+    <string name="btn_clear_signature">Kustuta allkiri</string>
+
     <string name="empty_photo_preview">Siia ilmub foto eelvaade</string>
+    <string name="btn_save">Salvesta andmed</string>
+    <string name="btn_clear">Tühjenda vorm</string>
+    <string name="btn_back">Tagasi majade nimekirja</string>
     <string name="save_success">Andmed saadetud!</string>
     <string name="server_error">Serveri viga</string>
     <string name="send_error">Viga saatmisel</string>
+
+    <string-array name="radiator_type_options">
+        <item>Alumiinium</item>
+        <item>Malm</item>
+        <item>Muu</item>
+    </string-array>
+
+    <!-- PLACEHOLDER väärtused - vahetatakse hiljem päris mõõtude vastu -->
+    <string-array name="radiator_dim_presets">
+        <item>300 mm</item>
+        <item>500 mm</item>
+        <item>600 mm</item>
+        <item>Muu</item>
+    </string-array>
 </resources>

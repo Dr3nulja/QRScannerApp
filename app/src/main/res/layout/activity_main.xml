@@ -58,6 +58,131 @@
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
+        <!-- Seadme tüüp -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            app:cardBackgroundColor="@color/elder_surface"
+            app:cardCornerRadius="22dp"
+            app:cardElevation="1dp"
+            app:strokeColor="@color/elder_surface_soft"
+            app:strokeWidth="1dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="18dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/section_device_type"
+                    android:textColor="@color/elder_text"
+                    android:textSize="22sp"
+                    android:textStyle="bold" />
+
+                <RadioGroup
+                    android:id="@+id/rgDeviceType"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp"
+                    android:orientation="horizontal">
+
+                    <RadioButton
+                        android:id="@+id/rbAllocator"
+                        android:layout_width="0dp"
+                        android:layout_height="56dp"
+                        android:layout_weight="1"
+                        android:background="@drawable/btn_selection_gray_rounded"
+                        android:buttonTint="@color/elder_primary"
+                        android:gravity="center_vertical"
+                        android:paddingStart="18dp"
+                        android:text="@string/device_allocator"
+                        android:textColor="@color/elder_text"
+                        android:textSize="18sp" />
+
+                    <RadioButton
+                        android:id="@+id/rbWaterMeter"
+                        android:layout_width="0dp"
+                        android:layout_height="56dp"
+                        android:layout_marginStart="12dp"
+                        android:layout_weight="1"
+                        android:background="@drawable/btn_selection_gray_rounded"
+                        android:buttonTint="@color/elder_primary"
+                        android:gravity="center_vertical"
+                        android:paddingStart="18dp"
+                        android:text="@string/device_water_meter"
+                        android:textColor="@color/elder_text"
+                        android:textSize="18sp" />
+                </RadioGroup>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Toiming -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            app:cardBackgroundColor="@color/elder_surface"
+            app:cardCornerRadius="22dp"
+            app:cardElevation="1dp"
+            app:strokeColor="@color/elder_surface_soft"
+            app:strokeWidth="1dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="18dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/section_action"
+                    android:textColor="@color/elder_text"
+                    android:textSize="22sp"
+                    android:textStyle="bold" />
+
+                <RadioGroup
+                    android:id="@+id/rgAction"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp"
+                    android:orientation="horizontal">
+
+                    <RadioButton
+                        android:id="@+id/rbInstall"
+                        android:layout_width="0dp"
+                        android:layout_height="56dp"
+                        android:layout_weight="1"
+                        android:background="@drawable/btn_selection_gray_rounded"
+                        android:buttonTint="@color/elder_primary"
+                        android:gravity="center_vertical"
+                        android:paddingStart="18dp"
+                        android:text="@string/action_install"
+                        android:textColor="@color/elder_text"
+                        android:textSize="18sp" />
+
+                    <RadioButton
+                        android:id="@+id/rbReplace"
+                        android:layout_width="0dp"
+                        android:layout_height="56dp"
+                        android:layout_marginStart="12dp"
+                        android:layout_weight="1"
+                        android:background="@drawable/btn_selection_gray_rounded"
+                        android:buttonTint="@color/elder_primary"
+                        android:gravity="center_vertical"
+                        android:paddingStart="18dp"
+                        android:text="@string/action_replace"
+                        android:textColor="@color/elder_text"
+                        android:textSize="18sp" />
+                </RadioGroup>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Korter + QR -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -111,8 +236,8 @@
                     android:layout_height="60dp"
                     android:layout_marginTop="10dp"
                     android:background="@android:drawable/edit_text"
-                    android:focusable="false"
-                    android:hint="@string/hint_qr"
+                    android:hint="@string/hint_qr_manual"
+                    android:inputType="text"
                     android:padding="16dp"
                     android:textColor="@color/elder_text"
                     android:textColorHint="@color/elder_text_muted"
@@ -132,31 +257,39 @@
                     app:iconGravity="textStart"
                     app:iconPadding="12dp" />
 
-                <TextView
+                <LinearLayout
+                    android:id="@+id/lastReadingGroup"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="18dp"
-                    android:text="@string/section_comment"
-                    android:textColor="@color/elder_text"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
+                    android:orientation="vertical"
+                    android:visibility="gone">
 
-                <EditText
-                    android:id="@+id/etComment"
-                    android:layout_width="match_parent"
-                    android:layout_height="100dp"
-                    android:layout_marginTop="10dp"
-                    android:background="@android:drawable/edit_text"
-                    android:gravity="top"
-                    android:hint="@string/hint_comment"
-                    android:inputType="textMultiLine"
-                    android:padding="16dp"
-                    android:textColor="@color/elder_text"
-                    android:textColorHint="@color/elder_text_muted"
-                    android:textSize="18sp" />
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="18dp"
+                        android:text="@string/hint_last_reading"
+                        android:textColor="@color/elder_text"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+
+                    <EditText
+                        android:id="@+id/etLastReading"
+                        android:layout_width="match_parent"
+                        android:layout_height="60dp"
+                        android:layout_marginTop="10dp"
+                        android:background="@android:drawable/edit_text"
+                        android:hint="@string/hint_last_reading"
+                        android:inputType="numberDecimal"
+                        android:padding="16dp"
+                        android:textColor="@color/elder_text"
+                        android:textColorHint="@color/elder_text_muted"
+                        android:textSize="18sp" />
+                </LinearLayout>
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
+        <!-- Pildid -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -181,51 +314,73 @@
                     android:textSize="22sp"
                     android:textStyle="bold" />
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnPhotoBefore"
+                <LinearLayout
+                    android:id="@+id/beforePhotoGroup"
                     android:layout_width="match_parent"
-                    android:layout_height="60dp"
-                    android:layout_marginTop="14dp"
-                    android:text="@string/btn_photo_before"
-                    android:textAllCaps="false"
-                    android:textSize="18sp"
-                    app:backgroundTint="@color/elder_success"
-                    app:cornerRadius="18dp"
-                    app:icon="@android:drawable/ic_menu_camera"
-                    app:iconGravity="textStart"
-                    app:iconPadding="12dp" />
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="gone">
 
-                <com.google.android.material.card.MaterialCardView
-                    android:layout_width="match_parent"
-                    android:layout_height="220dp"
-                    android:layout_marginTop="10dp"
-                    app:cardBackgroundColor="@color/elder_surface_soft"
-                    app:cardCornerRadius="18dp"
-                    app:strokeColor="@color/elder_surface_soft"
-                    app:strokeWidth="1dp">
-
-                    <FrameLayout
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnPhotoBefore"
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent">
+                        android:layout_height="60dp"
+                        android:layout_marginTop="14dp"
+                        android:text="@string/btn_photo_before"
+                        android:textAllCaps="false"
+                        android:textSize="18sp"
+                        app:backgroundTint="@color/elder_success"
+                        app:cornerRadius="18dp"
+                        app:icon="@android:drawable/ic_menu_camera"
+                        app:iconGravity="textStart"
+                        app:iconPadding="12dp" />
 
-                        <ImageView
-                            android:id="@+id/imgBefore"
+                    <com.google.android.material.card.MaterialCardView
+                        android:layout_width="match_parent"
+                        android:layout_height="220dp"
+                        android:layout_marginTop="10dp"
+                        app:cardBackgroundColor="@color/elder_surface_soft"
+                        app:cardCornerRadius="18dp"
+                        app:strokeColor="@color/elder_surface_soft"
+                        app:strokeWidth="1dp">
+
+                        <FrameLayout
                             android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:adjustViewBounds="true"
-                            android:background="@color/elder_surface_soft"
-                            android:contentDescription="@string/hint_before"
-                            android:scaleType="fitCenter" />
+                            android:layout_height="match_parent">
 
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="center"
-                            android:text="@string/empty_photo_preview"
-                            android:textColor="@color/elder_text_muted"
-                            android:textSize="16sp" />
-                    </FrameLayout>
-                </com.google.android.material.card.MaterialCardView>
+                            <ImageView
+                                android:id="@+id/imgBefore"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:adjustViewBounds="true"
+                                android:background="@color/elder_surface_soft"
+                                android:contentDescription="@string/hint_before"
+                                android:scaleType="fitCenter" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:text="@string/empty_photo_preview"
+                                android:textColor="@color/elder_text_muted"
+                                android:textSize="16sp" />
+                        </FrameLayout>
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <EditText
+                        android:id="@+id/etPhotoBeforeComment"
+                        android:layout_width="match_parent"
+                        android:layout_height="80dp"
+                        android:layout_marginTop="10dp"
+                        android:background="@android:drawable/edit_text"
+                        android:gravity="top"
+                        android:hint="@string/hint_photo_before_comment"
+                        android:inputType="textMultiLine"
+                        android:padding="16dp"
+                        android:textColor="@color/elder_text"
+                        android:textColorHint="@color/elder_text_muted"
+                        android:textSize="16sp" />
+                </LinearLayout>
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnPhotoAfter"
@@ -272,9 +427,576 @@
                             android:textSize="16sp" />
                     </FrameLayout>
                 </com.google.android.material.card.MaterialCardView>
+
+                <EditText
+                    android:id="@+id/etPhotoAfterComment"
+                    android:layout_width="match_parent"
+                    android:layout_height="80dp"
+                    android:layout_marginTop="10dp"
+                    android:background="@android:drawable/edit_text"
+                    android:gravity="top"
+                    android:hint="@string/hint_photo_after_comment"
+                    android:inputType="textMultiLine"
+                    android:padding="16dp"
+                    android:textColor="@color/elder_text"
+                    android:textColorHint="@color/elder_text_muted"
+                    android:textSize="16sp" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
+        <!-- Veearvesti valikud -->
+        <LinearLayout
+            android:id="@+id/waterMeterSection"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardBackgroundColor="@color/elder_surface"
+                app:cardCornerRadius="22dp"
+                app:cardElevation="1dp"
+                app:strokeColor="@color/elder_surface_soft"
+                app:strokeWidth="1dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="18dp">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/section_options"
+                        android:textColor="@color/elder_text"
+                        android:textSize="22sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:text="@string/dn_type_title"
+                        android:textColor="@color/elder_text"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+
+                    <RadioGroup
+                        android:id="@+id/rgDNType"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:orientation="horizontal">
+
+                        <RadioButton
+                            android:id="@+id/rgDN15"
+                            android:layout_width="0dp"
+                            android:layout_height="56dp"
+                            android:layout_weight="1"
+                            android:background="@drawable/btn_selection_gray_rounded"
+                            android:buttonTint="@color/elder_primary"
+                            android:checked="true"
+                            android:gravity="center_vertical"
+                            android:paddingStart="18dp"
+                            android:text="@string/dn_15"
+                            android:textColor="@color/elder_text"
+                            android:textSize="18sp" />
+
+                        <RadioButton
+                            android:id="@+id/rgDN20"
+                            android:layout_width="0dp"
+                            android:layout_height="56dp"
+                            android:layout_marginStart="12dp"
+                            android:layout_weight="1"
+                            android:background="@drawable/btn_selection_gray_rounded"
+                            android:buttonTint="@color/elder_primary"
+                            android:gravity="center_vertical"
+                            android:paddingStart="18dp"
+                            android:text="@string/dn_20"
+                            android:textColor="@color/elder_text"
+                            android:textSize="18sp" />
+                    </RadioGroup>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:text="@string/water_type_title"
+                        android:textColor="@color/elder_text"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+
+                    <RadioGroup
+                        android:id="@+id/rgWaterType"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:orientation="horizontal">
+
+                        <RadioButton
+                            android:id="@+id/rbCold"
+                            android:layout_width="0dp"
+                            android:layout_height="56dp"
+                            android:layout_weight="1"
+                            android:background="@drawable/btn_selection_water_cold_rounded"
+                            android:buttonTint="@color/white"
+                            android:gravity="center_vertical"
+                            android:paddingStart="18dp"
+                            android:textColor="@color/white"
+                            android:text="@string/water_cold"
+                            android:textSize="18sp" />
+
+                        <RadioButton
+                            android:id="@+id/rbHot"
+                            android:layout_width="0dp"
+                            android:layout_height="56dp"
+                            android:layout_marginStart="12dp"
+                            android:layout_weight="1"
+                            android:background="@drawable/btn_selection_water_hot_rounded"
+                            android:buttonTint="@color/white"
+                            android:gravity="center_vertical"
+                            android:paddingStart="18dp"
+                            android:textColor="@color/white"
+                            android:text="@string/water_hot"
+                            android:textSize="18sp" />
+                    </RadioGroup>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:text="@string/size_title"
+                        android:textColor="@color/elder_text"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+
+                    <RadioGroup
+                        android:id="@+id/rgSize"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:orientation="horizontal">
+
+                        <RadioButton
+                            android:id="@+id/rb110"
+                            android:layout_width="0dp"
+                            android:layout_height="56dp"
+                            android:layout_weight="1"
+                            android:background="@drawable/btn_selection_gray_rounded"
+                            android:buttonTint="@color/elder_primary"
+                            android:checked="true"
+                            android:gravity="center_vertical"
+                            android:paddingStart="18dp"
+                            android:text="@string/size_110"
+                            android:textColor="@color/elder_text"
+                            android:textSize="18sp" />
+
+                        <RadioButton
+                            android:id="@+id/rb80"
+                            android:layout_width="0dp"
+                            android:layout_height="56dp"
+                            android:layout_marginStart="12dp"
+                            android:layout_weight="1"
+                            android:background="@drawable/btn_selection_gray_rounded"
+                            android:buttonTint="@color/elder_primary"
+                            android:gravity="center_vertical"
+                            android:paddingStart="18dp"
+                            android:text="@string/size_80"
+                            android:textColor="@color/elder_text"
+                            android:textSize="18sp" />
+                    </RadioGroup>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:text="@string/section_kitchen"
+                        android:textColor="@color/elder_text"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:orientation="horizontal">
+
+                        <CheckBox
+                            android:id="@+id/cbKitchenFloor"
+                            android:layout_width="0dp"
+                            android:layout_height="56dp"
+                            android:layout_weight="1"
+                            android:background="@drawable/btn_selection_gray_rounded"
+                            android:buttonTint="@color/elder_primary"
+                            android:gravity="center_vertical"
+                            android:paddingStart="18dp"
+                            android:text="@string/room_floor"
+                            android:textColor="@color/elder_text"
+                            android:textSize="18sp" />
+
+                        <CheckBox
+                            android:id="@+id/cbKitchenCeiling"
+                            android:layout_width="0dp"
+                            android:layout_height="56dp"
+                            android:layout_marginStart="12dp"
+                            android:layout_weight="1"
+                            android:background="@drawable/btn_selection_gray_rounded"
+                            android:buttonTint="@color/elder_primary"
+                            android:gravity="center_vertical"
+                            android:paddingStart="18dp"
+                            android:text="@string/room_ceiling"
+                            android:textColor="@color/elder_text"
+                            android:textSize="18sp" />
+                    </LinearLayout>
+
+                    <EditText
+                        android:id="@+id/etKitchenComment"
+                        android:layout_width="match_parent"
+                        android:layout_height="80dp"
+                        android:layout_marginTop="10dp"
+                        android:background="@android:drawable/edit_text"
+                        android:gravity="top"
+                        android:hint="@string/hint_kitchen_comment"
+                        android:inputType="textMultiLine"
+                        android:padding="16dp"
+                        android:textColor="@color/elder_text"
+                        android:textColorHint="@color/elder_text_muted"
+                        android:textSize="16sp" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:text="@string/section_bathroom"
+                        android:textColor="@color/elder_text"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:orientation="horizontal">
+
+                        <CheckBox
+                            android:id="@+id/cbBathroomFloor"
+                            android:layout_width="0dp"
+                            android:layout_height="56dp"
+                            android:layout_weight="1"
+                            android:background="@drawable/btn_selection_gray_rounded"
+                            android:buttonTint="@color/elder_primary"
+                            android:gravity="center_vertical"
+                            android:paddingStart="18dp"
+                            android:text="@string/room_floor"
+                            android:textColor="@color/elder_text"
+                            android:textSize="18sp" />
+
+                        <CheckBox
+                            android:id="@+id/cbBathroomCeiling"
+                            android:layout_width="0dp"
+                            android:layout_height="56dp"
+                            android:layout_marginStart="12dp"
+                            android:layout_weight="1"
+                            android:background="@drawable/btn_selection_gray_rounded"
+                            android:buttonTint="@color/elder_primary"
+                            android:gravity="center_vertical"
+                            android:paddingStart="18dp"
+                            android:text="@string/room_ceiling"
+                            android:textColor="@color/elder_text"
+                            android:textSize="18sp" />
+                    </LinearLayout>
+
+                    <EditText
+                        android:id="@+id/etBathroomComment"
+                        android:layout_width="match_parent"
+                        android:layout_height="80dp"
+                        android:layout_marginTop="10dp"
+                        android:background="@android:drawable/edit_text"
+                        android:gravity="top"
+                        android:hint="@string/hint_bathroom_comment"
+                        android:inputType="textMultiLine"
+                        android:padding="16dp"
+                        android:textColor="@color/elder_text"
+                        android:textColorHint="@color/elder_text_muted"
+                        android:textSize="16sp" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+        </LinearLayout>
+
+        <!-- Soojusjaoturi valikud -->
+        <LinearLayout
+            android:id="@+id/allocatorSection"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardBackgroundColor="@color/elder_surface"
+                app:cardCornerRadius="22dp"
+                app:cardElevation="1dp"
+                app:strokeColor="@color/elder_surface_soft"
+                app:strokeWidth="1dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="18dp">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/section_allocator_location"
+                        android:textColor="@color/elder_text"
+                        android:textSize="22sp"
+                        android:textStyle="bold" />
+
+                    <RadioGroup
+                        android:id="@+id/rgAllocatorLocation"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="14dp"
+                        android:orientation="vertical">
+
+                        <RadioButton
+                            android:id="@+id/rbLocKitchen"
+                            android:layout_width="match_parent"
+                            android:layout_height="56dp"
+                            android:background="@drawable/btn_selection_gray_rounded"
+                            android:buttonTint="@color/elder_primary"
+                            android:gravity="center_vertical"
+                            android:paddingStart="18dp"
+                            android:text="@string/location_kitchen"
+                            android:textColor="@color/elder_text"
+                            android:textSize="18sp" />
+
+                        <RadioButton
+                            android:id="@+id/rbLocRoom1"
+                            android:layout_width="match_parent"
+                            android:layout_height="56dp"
+                            android:layout_marginTop="10dp"
+                            android:background="@drawable/btn_selection_gray_rounded"
+                            android:buttonTint="@color/elder_primary"
+                            android:gravity="center_vertical"
+                            android:paddingStart="18dp"
+                            android:text="@string/location_room_1"
+                            android:textColor="@color/elder_text"
+                            android:textSize="18sp" />
+
+                        <RadioButton
+                            android:id="@+id/rbLocRoom2"
+                            android:layout_width="match_parent"
+                            android:layout_height="56dp"
+                            android:layout_marginTop="10dp"
+                            android:background="@drawable/btn_selection_gray_rounded"
+                            android:buttonTint="@color/elder_primary"
+                            android:gravity="center_vertical"
+                            android:paddingStart="18dp"
+                            android:text="@string/location_room_2"
+                            android:textColor="@color/elder_text"
+                            android:textSize="18sp" />
+
+                        <RadioButton
+                            android:id="@+id/rbLocRoom3"
+                            android:layout_width="match_parent"
+                            android:layout_height="56dp"
+                            android:layout_marginTop="10dp"
+                            android:background="@drawable/btn_selection_gray_rounded"
+                            android:buttonTint="@color/elder_primary"
+                            android:gravity="center_vertical"
+                            android:paddingStart="18dp"
+                            android:text="@string/location_room_3"
+                            android:textColor="@color/elder_text"
+                            android:textSize="18sp" />
+
+                        <RadioButton
+                            android:id="@+id/rbLocRoom4"
+                            android:layout_width="match_parent"
+                            android:layout_height="56dp"
+                            android:layout_marginTop="10dp"
+                            android:background="@drawable/btn_selection_gray_rounded"
+                            android:buttonTint="@color/elder_primary"
+                            android:gravity="center_vertical"
+                            android:paddingStart="18dp"
+                            android:text="@string/location_room_4"
+                            android:textColor="@color/elder_text"
+                            android:textSize="18sp" />
+                    </RadioGroup>
+
+                    <EditText
+                        android:id="@+id/etAllocatorLocationComment"
+                        android:layout_width="match_parent"
+                        android:layout_height="80dp"
+                        android:layout_marginTop="10dp"
+                        android:background="@android:drawable/edit_text"
+                        android:gravity="top"
+                        android:hint="@string/hint_location_comment"
+                        android:inputType="textMultiLine"
+                        android:padding="16dp"
+                        android:textColor="@color/elder_text"
+                        android:textColorHint="@color/elder_text_muted"
+                        android:textSize="16sp" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="18dp"
+                        android:text="@string/section_radiator_type"
+                        android:textColor="@color/elder_text"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+
+                    <Spinner
+                        android:id="@+id/spRadiatorType"
+                        android:layout_width="match_parent"
+                        android:layout_height="60dp"
+                        android:layout_marginTop="10dp"
+                        android:background="@android:drawable/edit_text"
+                        android:entries="@array/radiator_type_options"
+                        android:padding="16dp" />
+
+                    <EditText
+                        android:id="@+id/etRadiatorTypeOther"
+                        android:layout_width="match_parent"
+                        android:layout_height="60dp"
+                        android:layout_marginTop="10dp"
+                        android:background="@android:drawable/edit_text"
+                        android:hint="@string/hint_radiator_type_other"
+                        android:inputType="text"
+                        android:padding="16dp"
+                        android:textColor="@color/elder_text"
+                        android:textColorHint="@color/elder_text_muted"
+                        android:textSize="16sp"
+                        android:visibility="gone" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="18dp"
+                        android:text="@string/section_radiator_size"
+                        android:textColor="@color/elder_text"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:text="@string/label_radiator_width"
+                        android:textColor="@color/elder_text_muted"
+                        android:textSize="16sp" />
+
+                    <Spinner
+                        android:id="@+id/spRadiatorWidth"
+                        android:layout_width="match_parent"
+                        android:layout_height="60dp"
+                        android:layout_marginTop="6dp"
+                        android:background="@android:drawable/edit_text"
+                        android:entries="@array/radiator_dim_presets"
+                        android:padding="16dp" />
+
+                    <EditText
+                        android:id="@+id/etRadiatorWidthOther"
+                        android:layout_width="match_parent"
+                        android:layout_height="60dp"
+                        android:layout_marginTop="10dp"
+                        android:background="@android:drawable/edit_text"
+                        android:hint="@string/hint_radiator_width_other"
+                        android:inputType="text"
+                        android:padding="16dp"
+                        android:textColor="@color/elder_text"
+                        android:textColorHint="@color/elder_text_muted"
+                        android:textSize="16sp"
+                        android:visibility="gone" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="14dp"
+                        android:text="@string/label_radiator_depth"
+                        android:textColor="@color/elder_text_muted"
+                        android:textSize="16sp" />
+
+                    <Spinner
+                        android:id="@+id/spRadiatorDepth"
+                        android:layout_width="match_parent"
+                        android:layout_height="60dp"
+                        android:layout_marginTop="6dp"
+                        android:background="@android:drawable/edit_text"
+                        android:entries="@array/radiator_dim_presets"
+                        android:padding="16dp" />
+
+                    <EditText
+                        android:id="@+id/etRadiatorDepthOther"
+                        android:layout_width="match_parent"
+                        android:layout_height="60dp"
+                        android:layout_marginTop="10dp"
+                        android:background="@android:drawable/edit_text"
+                        android:hint="@string/hint_radiator_depth_other"
+                        android:inputType="text"
+                        android:padding="16dp"
+                        android:textColor="@color/elder_text"
+                        android:textColorHint="@color/elder_text_muted"
+                        android:textSize="16sp"
+                        android:visibility="gone" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="14dp"
+                        android:text="@string/label_radiator_length"
+                        android:textColor="@color/elder_text_muted"
+                        android:textSize="16sp" />
+
+                    <Spinner
+                        android:id="@+id/spRadiatorLength"
+                        android:layout_width="match_parent"
+                        android:layout_height="60dp"
+                        android:layout_marginTop="6dp"
+                        android:background="@android:drawable/edit_text"
+                        android:entries="@array/radiator_dim_presets"
+                        android:padding="16dp" />
+
+                    <EditText
+                        android:id="@+id/etRadiatorLengthOther"
+                        android:layout_width="match_parent"
+                        android:layout_height="60dp"
+                        android:layout_marginTop="10dp"
+                        android:background="@android:drawable/edit_text"
+                        android:hint="@string/hint_radiator_length_other"
+                        android:inputType="text"
+                        android:padding="16dp"
+                        android:textColor="@color/elder_text"
+                        android:textColorHint="@color/elder_text_muted"
+                        android:textSize="16sp"
+                        android:visibility="gone" />
+
+                    <EditText
+                        android:id="@+id/etAllocatorComment"
+                        android:layout_width="match_parent"
+                        android:layout_height="80dp"
+                        android:layout_marginTop="18dp"
+                        android:background="@android:drawable/edit_text"
+                        android:gravity="top"
+                        android:hint="@string/hint_allocator_comment"
+                        android:inputType="textMultiLine"
+                        android:padding="16dp"
+                        android:textColor="@color/elder_text"
+                        android:textColorHint="@color/elder_text_muted"
+                        android:textSize="16sp" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+        </LinearLayout>
+
+        <!-- Allkiri -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -294,7 +1016,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/section_options"
+                    android:text="@string/section_signature"
                     android:textColor="@color/elder_text"
                     android:textSize="22sp"
                     android:textStyle="bold" />
@@ -302,223 +1024,36 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
-                    android:text="@string/dn_type_title"
-                    android:textColor="@color/elder_text"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
+                    android:layout_marginTop="6dp"
+                    android:text="@string/label_sign_hint"
+                    android:textColor="@color/elder_text_muted"
+                    android:textSize="16sp" />
 
-                <RadioGroup
-                    android:id="@+id/rgDNType"
+                <com.google.android.material.card.MaterialCardView
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:orientation="horizontal">
+                    android:layout_height="200dp"
+                    android:layout_marginTop="10dp"
+                    app:cardBackgroundColor="@color/white"
+                    app:cardCornerRadius="18dp"
+                    app:strokeColor="@color/elder_surface_soft"
+                    app:strokeWidth="1dp">
 
-                    <RadioButton
-                        android:id="@+id/rgDN15"
-                        android:layout_width="0dp"
-                        android:layout_height="56dp"
-                        android:layout_weight="1"
-                        android:background="@drawable/btn_selection_gray_rounded"
-                        android:buttonTint="@color/elder_primary"
-                        android:checked="true"
-                        android:gravity="center_vertical"
-                        android:paddingStart="18dp"
-                        android:text="@string/dn_15"
-                        android:textColor="@color/elder_text"
-                        android:textSize="18sp" />
+                    <com.example.qrscannerapp.SignatureView
+                        android:id="@+id/signatureView"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent" />
+                </com.google.android.material.card.MaterialCardView>
 
-                    <RadioButton
-                        android:id="@+id/rgDN20"
-                        android:layout_width="0dp"
-                        android:layout_height="56dp"
-                        android:layout_marginStart="12dp"
-                        android:layout_weight="1"
-                        android:background="@drawable/btn_selection_gray_rounded"
-                        android:buttonTint="@color/elder_primary"
-                        android:gravity="center_vertical"
-                        android:paddingStart="18dp"
-                        android:text="@string/dn_20"
-                        android:textColor="@color/elder_text"
-                        android:textSize="18sp" />
-                </RadioGroup>
-
-                <TextView
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnClearSignature"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
-                    android:text="@string/water_type_title"
-                    android:textColor="@color/elder_text"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
-
-                <RadioGroup
-                    android:id="@+id/rgWaterType"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:orientation="horizontal">
-
-                    <RadioButton
-                        android:id="@+id/rbCold"
-                        android:layout_width="0dp"
-                        android:layout_height="56dp"
-                        android:layout_weight="1"
-                        android:background="@drawable/btn_selection_water_cold_rounded"
-                        android:buttonTint="@color/white"
-                        android:gravity="center_vertical"
-                        android:paddingStart="18dp"
-                        android:textColor="@color/white"
-                        android:text="@string/water_cold"
-                        android:textSize="18sp" />
-
-                    <RadioButton
-                        android:id="@+id/rbHot"
-                        android:layout_width="0dp"
-                        android:layout_height="56dp"
-                        android:layout_marginStart="12dp"
-                        android:layout_weight="1"
-                        android:background="@drawable/btn_selection_water_hot_rounded"
-                        android:buttonTint="@color/white"
-                        android:gravity="center_vertical"
-                        android:paddingStart="18dp"
-                        android:textColor="@color/white"
-                        android:text="@string/water_hot"
-                        android:textSize="18sp" />
-                </RadioGroup>
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
-                    android:text="@string/size_title"
-                    android:textColor="@color/elder_text"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
-
-                <RadioGroup
-                    android:id="@+id/rgSize"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:orientation="horizontal">
-
-                    <RadioButton
-                        android:id="@+id/rb80"
-                        android:layout_width="0dp"
-                        android:layout_height="56dp"
-                        android:layout_weight="1"
-                        android:background="@drawable/btn_selection_gray_rounded"
-                        android:buttonTint="@color/elder_primary"
-                        android:gravity="center_vertical"
-                        android:paddingStart="18dp"
-                        android:text="@string/size_80"
-                        android:textColor="@color/elder_text"
-                        android:textSize="18sp" />
-
-                    <RadioButton
-                        android:id="@+id/rb110"
-                        android:layout_width="0dp"
-                        android:layout_height="56dp"
-                        android:layout_marginStart="12dp"
-                        android:layout_weight="1"
-                        android:background="@drawable/btn_selection_gray_rounded"
-                        android:buttonTint="@color/elder_primary"
-                        android:gravity="center_vertical"
-                        android:paddingStart="18dp"
-                        android:text="@string/size_110"
-                        android:textColor="@color/elder_text"
-                        android:textSize="18sp" />
-                </RadioGroup>
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
-                    android:text="@string/section_kitchen"
-                    android:textColor="@color/elder_text"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
-
-                <RadioGroup
-                    android:id="@+id/rgKitchen"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:orientation="horizontal">
-
-                    <RadioButton
-                        android:id="@+id/rbKitchenFloor"
-                        android:layout_width="0dp"
-                        android:layout_height="56dp"
-                        android:layout_weight="1"
-                        android:background="@drawable/btn_selection_gray_rounded"
-                        android:buttonTint="@color/elder_primary"
-                        android:gravity="center_vertical"
-                        android:paddingStart="18dp"
-                        android:text="@string/room_floor"
-                        android:textColor="@color/elder_text"
-                        android:textSize="18sp" />
-
-                    <RadioButton
-                        android:id="@+id/rbKitchenCeiling"
-                        android:layout_width="0dp"
-                        android:layout_height="56dp"
-                        android:layout_marginStart="12dp"
-                        android:layout_weight="1"
-                        android:background="@drawable/btn_selection_gray_rounded"
-                        android:buttonTint="@color/elder_primary"
-                        android:gravity="center_vertical"
-                        android:paddingStart="18dp"
-                        android:text="@string/room_ceiling"
-                        android:textColor="@color/elder_text"
-                        android:textSize="18sp" />
-                </RadioGroup>
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
-                    android:text="@string/section_bathroom"
-                    android:textColor="@color/elder_text"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
-
-                <RadioGroup
-                    android:id="@+id/rgBathroom"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:orientation="horizontal">
-
-                    <RadioButton
-                        android:id="@+id/rbBathroomFloor"
-                        android:layout_width="0dp"
-                        android:layout_height="56dp"
-                        android:layout_weight="1"
-                        android:background="@drawable/btn_selection_gray_rounded"
-                        android:buttonTint="@color/elder_primary"
-                        android:gravity="center_vertical"
-                        android:paddingStart="18dp"
-                        android:text="@string/room_floor"
-                        android:textColor="@color/elder_text"
-                        android:textSize="18sp" />
-
-                    <RadioButton
-                        android:id="@+id/rbBathroomCeiling"
-                        android:layout_width="0dp"
-                        android:layout_height="56dp"
-                        android:layout_marginStart="12dp"
-                        android:layout_weight="1"
-                        android:background="@drawable/btn_selection_gray_rounded"
-                        android:buttonTint="@color/elder_primary"
-                        android:gravity="center_vertical"
-                        android:paddingStart="18dp"
-                        android:text="@string/room_ceiling"
-                        android:textColor="@color/elder_text"
-                        android:textSize="18sp" />
-                </RadioGroup>
+                    android:layout_height="52dp"
+                    android:layout_marginTop="10dp"
+                    android:text="@string/btn_clear_signature"
+                    android:textAllCaps="false"
+                    android:textSize="16sp"
+                    app:backgroundTint="@color/elder_danger"
+                    app:cornerRadius="16dp" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
