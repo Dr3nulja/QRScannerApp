@@ -238,6 +238,7 @@ public class MainActivity extends AppCompatActivity {
         options.setBeepEnabled(true);
         options.setOrientationLocked(true);
         options.setDesiredBarcodeFormats(ScanOptions.QR_CODE, ScanOptions.DATA_MATRIX);
+        options.addExtra("TRY_HARDER", true);
         scanLauncher.launch(options);
     }
 
