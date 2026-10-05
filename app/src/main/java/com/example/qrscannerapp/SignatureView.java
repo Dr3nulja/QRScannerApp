@@ -54,12 +54,16 @@ public class SignatureView extends View {
 
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
+                // Не даём ScrollView перехватывать жест, пока рисуется подпись
+                getParent().requestDisallowInterceptTouchEvent(true);
                 path.moveTo(x, y);
                 return true;
             case MotionEvent.ACTION_MOVE:
                 path.lineTo(x, y);
                 break;
             case MotionEvent.ACTION_UP:
+            case MotionEvent.ACTION_CANCEL:
+                getParent().requestDisallowInterceptTouchEvent(false);
                 path.lineTo(x, y);
                 if (canvas != null) {
                     canvas.drawPath(path, paint);

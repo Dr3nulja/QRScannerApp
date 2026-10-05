@@ -7,15 +7,23 @@
     <string name="main_subtitle">Täida samm-sammult. Kui mõni lahter jääb tühjaks, saad hiljem juurde lisada.</string>
     <string name="selected_house_label">Valitud maja</string>
 
-    <string name="section_device_type">1. Seadme tüüp</string>
+    <string name="numbered_section">%1$d. %2$s</string>
+
+    <string name="section_device_type">Seadme tüüp</string>
     <string name="device_allocator">Soojusjaotur</string>
     <string name="device_water_meter">Veearvesti</string>
 
-    <string name="section_action">2. Toiming</string>
+    <string name="section_action">Toiming</string>
     <string name="action_install">Paigaldus</string>
     <string name="action_replace">Vahetus</string>
 
-    <string name="section_apartment">3. Korteri ja koodi andmed</string>
+    <string name="task_water_meter_replace">Veearvestite vahetus</string>
+    <string name="task_water_meter_install">Veearvestite paigaldus</string>
+    <string name="task_allocator_replace">Soojusjaoturite vahetus</string>
+    <string name="task_allocator_install">Soojusjaoturite paigaldus</string>
+    <string name="house_with_task">%1$s\n%2$s</string>
+
+    <string name="section_apartment">Korteri ja koodi andmed</string>
     <string name="hint_apartment">Korteri number</string>
     <string name="hint_qr">QR-koodi ID</string>
     <string name="hint_qr_manual">Sisesta QR-koodi number käsitsi</string>
@@ -23,7 +31,7 @@
 
     <string name="hint_last_reading">Viimane näit enne vahetust</string>
 
-    <string name="section_photos">4. Pildid</string>
+    <string name="section_photos">Pildid</string>
     <string name="hint_before">Enne tööde pilt</string>
     <string name="hint_after">Pärast tööde pilt</string>
     <string name="btn_photo_before">Tee enne foto</string>
@@ -31,7 +39,7 @@
     <string name="hint_photo_before_comment">Märkus enne pildi kohta</string>
     <string name="hint_photo_after_comment">Märkus pärast pildi kohta</string>
 
-    <string name="section_options">5. Valikud</string>
+    <string name="section_options">Valikud</string>
     <string name="dn_type_title">Toru tüüp</string>
     <string name="water_type_title">Vee tüüp</string>
     <string name="size_title">Suurus</string>
@@ -61,8 +69,12 @@
     <string name="hint_radiator_type_other">Sisesta radiaatori tüüp</string>
 
     <string name="section_radiator_size">Radiaatori mõõdud</string>
+    <string name="label_radiator_panel_type">Tüüp</string>
+    <string name="hint_radiator_panel_type_other">Sisesta tüüp</string>
     <string name="label_radiator_width">Laius</string>
     <string name="label_radiator_depth">Sügavus</string>
+    <string name="label_radiator_height">Kõrgus</string>
+    <string name="hint_radiator_height_other">Sisesta kõrgus</string>
     <string name="label_radiator_length">Pikkus</string>
     <string name="hint_radiator_width_other">Sisesta laius</string>
     <string name="hint_radiator_depth_other">Sisesta sügavus</string>
@@ -71,7 +83,10 @@
 
     <string name="hint_allocator_comment">Jaoturi märkus</string>
 
-    <string name="section_signature">6. Omaniku allkiri</string>
+    <string name="toggle_field_comment">Lisa kommentaar</string>
+    <string name="hint_field_comment">Kommentaar</string>
+
+    <string name="section_signature">Omaniku allkiri</string>
     <string name="label_sign_hint">Allkirjastage sõrmega</string>
     <string name="btn_clear_signature">Kustuta allkiri</string>
 
@@ -86,6 +101,37 @@
     <string-array name="radiator_type_options">
         <item>Alumiinium</item>
         <item>Malm</item>
+        <item>Raud</item>
+        <item>Muu</item>
+    </string-array>
+
+    <string-array name="radiator_panel_type_options">
+        <item>11</item>
+        <item>21</item>
+        <item>22</item>
+        <item>23</item>
+        <item>Muu</item>
+    </string-array>
+
+    <string-array name="radiator_height_options">
+        <item>300</item>
+        <item>450</item>
+        <item>500</item>
+        <item>550</item>
+        <item>600</item>
+        <item>900</item>
+        <item>Muu</item>
+    </string-array>
+
+    <string-array name="radiator_length_options">
+        <item>500</item>
+        <item>600</item>
+        <item>800</item>
+        <item>900</item>
+        <item>1000</item>
+        <item>1200</item>
+        <item>1400</item>
+        <item>1600</item>
         <item>Muu</item>
     </string-array>
 

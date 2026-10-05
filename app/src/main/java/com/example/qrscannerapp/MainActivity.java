@@ -8,7 +8,11 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Base64;
 import android.util.Log;
+import android.text.InputType;
+import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.*;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -27,6 +31,8 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -35,7 +41,7 @@ public class MainActivity extends AppCompatActivity {
     private EditText etApartment, etQrId, etLastReading;
     private EditText etKitchenComment, etBathroomComment;
     private EditText etAllocatorLocationComment, etAllocatorComment;
-    private EditText etRadiatorTypeOther, etRadiatorWidthOther, etRadiatorDepthOther, etRadiatorLengthOther;
+    private EditText etRadiatorTypeOther, etRadiatorPanelTypeOther, etRadiatorWidthOther, etRadiatorDepthOther, etRadiatorHeightOther, etRadiatorLengthOther;
     private EditText etPhotoBeforeComment, etPhotoAfterComment;
     private TextView tvHouse;
 
@@ -43,7 +49,7 @@ public class MainActivity extends AppCompatActivity {
     private RadioGroup rgDNType, rgWaterType, rgSize;
     private CheckBox cbKitchenFloor, cbKitchenCeiling, cbBathroomFloor, cbBathroomCeiling;
     private RadioGroup rgAllocatorLocation;
-    private Spinner spRadiatorType, spRadiatorWidth, spRadiatorDepth, spRadiatorLength;
+    private Spinner spRadiatorType, spRadiatorPanelType, spRadiatorWidth, spRadiatorDepth, spRadiatorHeight, spRadiatorLength;
 
     private View waterMeterSection, allocatorSection, beforePhotoGroup, lastReadingGroup;
 
@@ -53,7 +59,25 @@ public class MainActivity extends AppCompatActivity {
 
     private SignatureView signatureView;
 
+    // Ключ поля (например "apartment") -> блок "галочка + комментарий"
+    private final Map<String, FieldComment> fieldComments = new LinkedHashMap<>();
+
+    private static class FieldComment {
+        final CheckBox toggle;
+        final EditText input;
+
+        FieldComment(CheckBox toggle, EditText input) {
+            this.toggle = toggle;
+            this.input = input;
+        }
+
+        String getValue() {
+            return toggle.isChecked() ? input.getText().toString() : "";
+        }
+    }
+
     private int houseId;
+    private String presetDeviceType, presetActionType;
 
     private ActivityResultLauncher<ScanOptions> scanLauncher;
 
@@ -106,8 +130,10 @@ public class MainActivity extends AppCompatActivity {
         etAllocatorLocationComment = findViewById(R.id.etAllocatorLocationComment);
         etAllocatorComment = findViewById(R.id.etAllocatorComment);
         etRadiatorTypeOther = findViewById(R.id.etRadiatorTypeOther);
+        etRadiatorPanelTypeOther = findViewById(R.id.etRadiatorPanelTypeOther);
         etRadiatorWidthOther = findViewById(R.id.etRadiatorWidthOther);
         etRadiatorDepthOther = findViewById(R.id.etRadiatorDepthOther);
+        etRadiatorHeightOther = findViewById(R.id.etRadiatorHeightOther);
         etRadiatorLengthOther = findViewById(R.id.etRadiatorLengthOther);
         etPhotoBeforeComment = findViewById(R.id.etPhotoBeforeComment);
         etPhotoAfterComment = findViewById(R.id.etPhotoAfterComment);
@@ -126,8 +152,10 @@ public class MainActivity extends AppCompatActivity {
         cbBathroomCeiling = findViewById(R.id.cbBathroomCeiling);
 
         spRadiatorType = findViewById(R.id.spRadiatorType);
+        spRadiatorPanelType = findViewById(R.id.spRadiatorPanelType);
         spRadiatorWidth = findViewById(R.id.spRadiatorWidth);
         spRadiatorDepth = findViewById(R.id.spRadiatorDepth);
+        spRadiatorHeight = findViewById(R.id.spRadiatorHeight);
         spRadiatorLength = findViewById(R.id.spRadiatorLength);
 
         waterMeterSection = findViewById(R.id.waterMeterSection);
@@ -141,9 +169,26 @@ public class MainActivity extends AppCompatActivity {
         signatureView = findViewById(R.id.signatureView);
 
         setupOtherToggle(spRadiatorType, etRadiatorTypeOther);
+        setupOtherToggle(spRadiatorPanelType, etRadiatorPanelTypeOther);
         setupOtherToggle(spRadiatorWidth, etRadiatorWidthOther);
         setupOtherToggle(spRadiatorDepth, etRadiatorDepthOther);
+        setupOtherToggle(spRadiatorHeight, etRadiatorHeightOther);
         setupOtherToggle(spRadiatorLength, etRadiatorLengthOther);
+
+        addFieldComment(rgDeviceType, "device_type");
+        addFieldComment(rgAction, "action_type");
+        addFieldComment(etApartment, "apartment");
+        addFieldComment(findViewById(R.id.btnScan), "qr_id");
+        addFieldComment(etLastReading, "last_reading");
+        addFieldComment(rgDNType, "dn_type");
+        addFieldComment(rgWaterType, "water_type");
+        addFieldComment(rgSize, "size");
+        addFieldComment(etRadiatorTypeOther, "radiator_type");
+        addFieldComment(etRadiatorPanelTypeOther, "radiator_panel_type");
+        addFieldComment(etRadiatorWidthOther, "radiator_width");
+        addFieldComment(etRadiatorDepthOther, "radiator_depth");
+        addFieldComment(etRadiatorHeightOther, "radiator_height");
+        addFieldComment(etRadiatorLengthOther, "radiator_length");
 
         rgDeviceType.setOnCheckedChangeListener((group, checkedId) -> updateFormVisibility());
         rgAction.setOnCheckedChangeListener((group, checkedId) -> updateFormVisibility());
@@ -203,7 +248,27 @@ public class MainActivity extends AppCompatActivity {
             tvHouse.setText(houseAddress);
         }
 
+        // Задача из дашборда: тип и действие уже известны, выбирать вручную не нужно
+        presetDeviceType = getIntent().getStringExtra("DEVICE_TYPE");
+        presetActionType = getIntent().getStringExtra("ACTION_TYPE");
+        if (presetDeviceType != null && presetActionType != null) {
+            findViewById(R.id.cardDeviceType).setVisibility(View.GONE);
+            findViewById(R.id.cardAction).setVisibility(View.GONE);
+            renumberSections();
+            tvHouse.setText(getString(R.string.house_with_task, houseAddress,
+                    getString(House.taskLabelRes(presetDeviceType, presetActionType))));
+            applyPresetTask();
+        }
+
         requestCameraPermission();
+    }
+
+    private void applyPresetTask() {
+        if (presetDeviceType == null || presetActionType == null) return;
+        rgDeviceType.check(House.DEVICE_ALLOCATOR.equals(presetDeviceType)
+                ? R.id.rbAllocator : R.id.rbWaterMeter);
+        rgAction.check(House.ACTION_REPLACE.equals(presetActionType)
+                ? R.id.rbReplace : R.id.rbInstall);
     }
 
     private void setupOtherToggle(Spinner spinner, EditText otherField) {
@@ -221,6 +286,55 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    // Вставляет после anchor галочку "Lisa kommentaar", которая показывает поле комментария
+    private void addFieldComment(View anchor, String key) {
+        ViewGroup parent = (ViewGroup) anchor.getParent();
+        int index = parent.indexOfChild(anchor);
+
+        CheckBox toggle = new CheckBox(this);
+        LinearLayout.LayoutParams toggleParams = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, dp(48));
+        toggleParams.topMargin = dp(8);
+        toggle.setLayoutParams(toggleParams);
+        toggle.setBackgroundResource(R.drawable.btn_selection_gray_rounded);
+        toggle.setButtonTintList(ContextCompat.getColorStateList(this, R.color.elder_primary));
+        toggle.setGravity(Gravity.CENTER_VERTICAL);
+        toggle.setPaddingRelative(dp(18), 0, 0, 0);
+        toggle.setText(R.string.toggle_field_comment);
+        toggle.setTextColor(ContextCompat.getColor(this, R.color.elder_text_muted));
+        toggle.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
+
+        EditText input = new EditText(this);
+        LinearLayout.LayoutParams inputParams = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, dp(80));
+        inputParams.topMargin = dp(8);
+        input.setLayoutParams(inputParams);
+        input.setBackgroundResource(android.R.drawable.edit_text);
+        input.setGravity(Gravity.TOP);
+        input.setHint(R.string.hint_field_comment);
+        input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE);
+        input.setPadding(dp(16), dp(16), dp(16), dp(16));
+        input.setTextColor(ContextCompat.getColor(this, R.color.elder_text));
+        input.setHintTextColor(ContextCompat.getColor(this, R.color.elder_text_muted));
+        input.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
+        input.setVisibility(View.GONE);
+
+        toggle.setOnCheckedChangeListener((button, checked) -> {
+            input.setVisibility(checked ? View.VISIBLE : View.GONE);
+            if (checked) {
+                input.requestFocus();
+            }
+        });
+
+        parent.addView(toggle, index + 1);
+        parent.addView(input, index + 2);
+        fieldComments.put(key, new FieldComment(toggle, input));
+    }
+
+    private int dp(int value) {
+        return Math.round(value * getResources().getDisplayMetrics().density);
+    }
+
     private void updateFormVisibility() {
         boolean isAllocator = rgDeviceType.getCheckedRadioButtonId() == R.id.rbAllocator;
         boolean isWaterMeter = rgDeviceType.getCheckedRadioButtonId() == R.id.rbWaterMeter;
@@ -230,6 +344,36 @@ public class MainActivity extends AppCompatActivity {
         allocatorSection.setVisibility(isAllocator ? View.VISIBLE : View.GONE);
         lastReadingGroup.setVisibility(isWaterMeter && isReplace ? View.VISIBLE : View.GONE);
         beforePhotoGroup.setVisibility(isReplace ? View.VISIBLE : View.GONE);
+        renumberSections();
+    }
+
+    // Нумерует только видимые разделы, чтобы не было пропусков (1, 2, 3...)
+    private void renumberSections() {
+        int[][] sections = {
+                {R.id.tvSectionDeviceType, R.string.section_device_type},
+                {R.id.tvSectionAction, R.string.section_action},
+                {R.id.tvSectionApartment, R.string.section_apartment},
+                {R.id.tvSectionPhotos, R.string.section_photos},
+                {R.id.tvSectionOptions, R.string.section_options},
+                {R.id.tvSectionSignature, R.string.section_signature},
+        };
+        int number = 1;
+        for (int[] section : sections) {
+            TextView title = findViewById(section[0]);
+            if (isVisibleInForm(title)) {
+                title.setText(getString(R.string.numbered_section, number++, getString(section[1])));
+            }
+        }
+    }
+
+    // View.isShown() не работает до прикрепления к окну, поэтому проверяем родителей сами
+    private boolean isVisibleInForm(View view) {
+        while (view != null) {
+            if (view.getVisibility() != View.VISIBLE) return false;
+            if (view.getId() == R.id.mainScroll) return true;
+            view = view.getParent() instanceof View ? (View) view.getParent() : null;
+        }
+        return true;
     }
 
     private void startScan() {
@@ -270,14 +414,17 @@ public class MainActivity extends AppCompatActivity {
         etAllocatorLocationComment.setText("");
         etAllocatorComment.setText("");
         etRadiatorTypeOther.setText("");
+        etRadiatorPanelTypeOther.setText("");
         etRadiatorWidthOther.setText("");
         etRadiatorDepthOther.setText("");
+        etRadiatorHeightOther.setText("");
         etRadiatorLengthOther.setText("");
         etPhotoBeforeComment.setText("");
         etPhotoAfterComment.setText("");
 
         rgDeviceType.clearCheck();
         rgAction.clearCheck();
+        applyPresetTask();
         rgDNType.clearCheck();
         rgWaterType.clearCheck();
         rgSize.clearCheck();
@@ -289,13 +436,22 @@ public class MainActivity extends AppCompatActivity {
         cbBathroomCeiling.setChecked(false);
 
         spRadiatorType.setSelection(0);
+        spRadiatorPanelType.setSelection(0);
         spRadiatorWidth.setSelection(0);
         spRadiatorDepth.setSelection(0);
+        spRadiatorHeight.setSelection(0);
         spRadiatorLength.setSelection(0);
         etRadiatorTypeOther.setVisibility(View.GONE);
+        etRadiatorPanelTypeOther.setVisibility(View.GONE);
         etRadiatorWidthOther.setVisibility(View.GONE);
         etRadiatorDepthOther.setVisibility(View.GONE);
+        etRadiatorHeightOther.setVisibility(View.GONE);
         etRadiatorLengthOther.setVisibility(View.GONE);
+
+        for (FieldComment comment : fieldComments.values()) {
+            comment.input.setText("");
+            comment.toggle.setChecked(false);
+        }
 
         beforeBitmap = null;
         afterBitmap = null;
@@ -347,8 +503,10 @@ public class MainActivity extends AppCompatActivity {
                 String allocatorLocationComment = etAllocatorLocationComment.getText().toString();
 
                 String radiatorType = getSpinnerValue(spRadiatorType, etRadiatorTypeOther);
+                String radiatorPanelType = getSpinnerValue(spRadiatorPanelType, etRadiatorPanelTypeOther);
                 String radiatorWidth = getSpinnerValue(spRadiatorWidth, etRadiatorWidthOther);
                 String radiatorDepth = getSpinnerValue(spRadiatorDepth, etRadiatorDepthOther);
+                String radiatorHeight = getSpinnerValue(spRadiatorHeight, etRadiatorHeightOther);
                 String radiatorLength = getSpinnerValue(spRadiatorLength, etRadiatorLengthOther);
                 String allocatorComment = etAllocatorComment.getText().toString();
 
@@ -378,8 +536,10 @@ public class MainActivity extends AppCompatActivity {
                                 "&allocator_location=" + URLEncoder.encode(allocatorLocation, "UTF-8") +
                                 "&allocator_location_comment=" + URLEncoder.encode(allocatorLocationComment, "UTF-8") +
                                 "&radiator_type=" + URLEncoder.encode(radiatorType, "UTF-8") +
+                                "&radiator_panel_type=" + URLEncoder.encode(radiatorPanelType, "UTF-8") +
                                 "&radiator_width=" + URLEncoder.encode(radiatorWidth, "UTF-8") +
                                 "&radiator_depth=" + URLEncoder.encode(radiatorDepth, "UTF-8") +
+                                "&radiator_height=" + URLEncoder.encode(radiatorHeight, "UTF-8") +
                                 "&radiator_length=" + URLEncoder.encode(radiatorLength, "UTF-8") +
                                 "&allocator_comment=" + URLEncoder.encode(allocatorComment, "UTF-8") +
                                 "&photo_before_comment=" + URLEncoder.encode(photoBeforeComment, "UTF-8") +
@@ -387,6 +547,13 @@ public class MainActivity extends AppCompatActivity {
                                 "&photo_before=" + URLEncoder.encode(beforeImage, "UTF-8") +
                                 "&photo_after=" + URLEncoder.encode(afterImage, "UTF-8") +
                                 "&signature=" + URLEncoder.encode(signatureImage, "UTF-8");
+
+                StringBuilder commentsData = new StringBuilder();
+                for (Map.Entry<String, FieldComment> entry : fieldComments.entrySet()) {
+                    commentsData.append("&").append(entry.getKey()).append("_comment=")
+                            .append(URLEncoder.encode(entry.getValue().getValue(), "UTF-8"));
+                }
+                postData += commentsData;
 
                 Log.d("POST_DATA", postData);
 

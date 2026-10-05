@@ -60,6 +60,7 @@
 
         <!-- Seadme tüüp -->
         <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardDeviceType"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
@@ -76,6 +77,7 @@
                 android:padding="18dp">
 
                 <TextView
+                    android:id="@+id/tvSectionDeviceType"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@string/section_device_type"
@@ -122,6 +124,7 @@
 
         <!-- Toiming -->
         <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardAction"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
@@ -138,6 +141,7 @@
                 android:padding="18dp">
 
                 <TextView
+                    android:id="@+id/tvSectionAction"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@string/section_action"
@@ -200,6 +204,7 @@
                 android:padding="18dp">
 
                 <TextView
+                    android:id="@+id/tvSectionApartment"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@string/section_apartment"
@@ -307,6 +312,7 @@
                 android:padding="18dp">
 
                 <TextView
+                    android:id="@+id/tvSectionPhotos"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@string/section_photos"
@@ -469,6 +475,7 @@
                     android:padding="18dp">
 
                     <TextView
+                        android:id="@+id/tvSectionOptions"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="@string/section_options"
@@ -890,6 +897,37 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="10dp"
+                        android:text="@string/label_radiator_panel_type"
+                        android:textColor="@color/elder_text_muted"
+                        android:textSize="16sp" />
+
+                    <Spinner
+                        android:id="@+id/spRadiatorPanelType"
+                        android:layout_width="match_parent"
+                        android:layout_height="60dp"
+                        android:layout_marginTop="6dp"
+                        android:background="@android:drawable/edit_text"
+                        android:entries="@array/radiator_panel_type_options"
+                        android:padding="16dp" />
+
+                    <EditText
+                        android:id="@+id/etRadiatorPanelTypeOther"
+                        android:layout_width="match_parent"
+                        android:layout_height="60dp"
+                        android:layout_marginTop="10dp"
+                        android:background="@android:drawable/edit_text"
+                        android:hint="@string/hint_radiator_panel_type_other"
+                        android:inputType="text"
+                        android:padding="16dp"
+                        android:textColor="@color/elder_text"
+                        android:textColorHint="@color/elder_text_muted"
+                        android:textSize="16sp"
+                        android:visibility="gone" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="14dp"
                         android:text="@string/label_radiator_width"
                         android:textColor="@color/elder_text_muted"
                         android:textSize="16sp" />
@@ -952,6 +990,37 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="14dp"
+                        android:text="@string/label_radiator_height"
+                        android:textColor="@color/elder_text_muted"
+                        android:textSize="16sp" />
+
+                    <Spinner
+                        android:id="@+id/spRadiatorHeight"
+                        android:layout_width="match_parent"
+                        android:layout_height="60dp"
+                        android:layout_marginTop="6dp"
+                        android:background="@android:drawable/edit_text"
+                        android:entries="@array/radiator_height_options"
+                        android:padding="16dp" />
+
+                    <EditText
+                        android:id="@+id/etRadiatorHeightOther"
+                        android:layout_width="match_parent"
+                        android:layout_height="60dp"
+                        android:layout_marginTop="10dp"
+                        android:background="@android:drawable/edit_text"
+                        android:hint="@string/hint_radiator_height_other"
+                        android:inputType="text"
+                        android:padding="16dp"
+                        android:textColor="@color/elder_text"
+                        android:textColorHint="@color/elder_text_muted"
+                        android:textSize="16sp"
+                        android:visibility="gone" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="14dp"
                         android:text="@string/label_radiator_length"
                         android:textColor="@color/elder_text_muted"
                         android:textSize="16sp" />
@@ -962,7 +1031,7 @@
                         android:layout_height="60dp"
                         android:layout_marginTop="6dp"
                         android:background="@android:drawable/edit_text"
-                        android:entries="@array/radiator_dim_presets"
+                        android:entries="@array/radiator_length_options"
                         android:padding="16dp" />
 
                     <EditText
@@ -1014,6 +1083,7 @@
                 android:padding="18dp">
 
                 <TextView
+                    android:id="@+id/tvSectionSignature"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@string/section_signature"

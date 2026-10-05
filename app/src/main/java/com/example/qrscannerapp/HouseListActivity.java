@@ -40,6 +40,22 @@ public class HouseListActivity extends AppCompatActivity {
 
     private static final String TAG = "HouseListActivity";
 
+    // 🔴 ТЕСТ: пока сервер не отдаёт "tasks", подставляем задачи сами.
+    // Когда сервер начнёт отдавать задачи, поставить false (или удалить вместе с testTasks)
+    private static final boolean USE_TEST_TASKS = true;
+
+    private static JSONArray testTasks(int houseId) throws org.json.JSONException {
+        switch (houseId) {
+            case 1: // Kalamaja 55: одна задача
+                return new JSONArray("[{\"device_type\":\"water_meter\",\"action_type\":\"replace\"}]");
+            case 2: // Majaka 5: две задачи
+                return new JSONArray("[{\"device_type\":\"allocator\",\"action_type\":\"install\"},"
+                        + "{\"device_type\":\"water_meter\",\"action_type\":\"install\"}]");
+            default: // остальные дома: без задачи, ручной выбор
+                return null;
+        }
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -77,6 +93,10 @@ public class HouseListActivity extends AppCompatActivity {
                     "HOUSE_ADDRESS",
                     selectedHouse.city + ", " + selectedHouse.address
             );
+            if (selectedHouse.hasTask()) {
+                intent.putExtra("DEVICE_TYPE", selectedHouse.deviceType);
+                intent.putExtra("ACTION_TYPE", selectedHouse.actionType);
+            }
             startActivity(intent);
         });
     }
@@ -116,7 +136,7 @@ public class HouseListActivity extends AppCompatActivity {
                 reader.close();
 
                 JSONArray array = new JSONArray(json.toString());
-                houses.clear();
+                ArrayList<House> loaded = new ArrayList<>();
 
                 for (int i = 0; i < array.length(); i++) {
                     JSONObject obj = array.getJSONObject(i);
@@ -126,13 +146,30 @@ public class HouseListActivity extends AppCompatActivity {
                     house.city = obj.getString("City");
                     house.address = obj.getString("address");
 
-                    houses.add(house);
+                    // Задачи из дашборда: каждая задача = отдельная строка в списке
+                    JSONArray tasks = obj.optJSONArray("tasks");
+                    if (USE_TEST_TASKS && (tasks == null || tasks.length() == 0)) {
+                        tasks = testTasks(house.id);
+                    }
+                    if (tasks == null || tasks.length() == 0) {
+                        loaded.add(house);
+                    } else {
+                        for (int t = 0; t < tasks.length(); t++) {
+                            JSONObject task = tasks.getJSONObject(t);
+                            loaded.add(house.withTask(
+                                    task.optString("device_type", null),
+                                    task.optString("action_type", null)
+                            ));
+                        }
+                    }
 
                     // 🔴 ОТЛАДКА (можно удалить)
                     Log.d(TAG, "Loaded house id=" + house.id);
                 }
 
                 runOnUiThread(() -> {
+                    houses.clear();
+                    houses.addAll(loaded);
                     ArrayAdapter<House> adapter = new HouseAdapter(this, houses);
                     listView.setAdapter(adapter);
                 });
@@ -166,6 +203,7 @@ public class HouseListActivity extends AppCompatActivity {
                 holder = new ViewHolder();
                 holder.title = convertView.findViewById(R.id.tvHouseTitle);
                 holder.address = convertView.findViewById(R.id.tvHouseAddress);
+                holder.task = convertView.findViewById(R.id.tvHouseTask);
                 convertView.setTag(holder);
             } else {
                 holder = (ViewHolder) convertView.getTag();
@@ -173,8 +211,14 @@ public class HouseListActivity extends AppCompatActivity {
 
             House house = getItem(position);
             if (house != null) {
-                holder.title.setText(house.city);
-                holder.address.setText(house.address);
+                holder.title.setText(house.address);
+                holder.address.setText(house.city);
+                if (house.hasTask()) {
+                    holder.task.setText(House.taskLabelRes(house.deviceType, house.actionType));
+                    holder.task.setVisibility(View.VISIBLE);
+                } else {
+                    holder.task.setVisibility(View.GONE);
+                }
             }
 
             return convertView;
@@ -183,6 +227,7 @@ public class HouseListActivity extends AppCompatActivity {
         private static class ViewHolder {
             TextView title;
             TextView address;
+            TextView task;
         }
     }
 }
