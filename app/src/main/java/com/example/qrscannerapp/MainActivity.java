@@ -557,7 +557,7 @@ public class MainActivity extends AppCompatActivity {
 
                 Log.d("POST_DATA", postData);
 
-                URL url = new URL("https://arvestused.agr-torud.ee/insert_dev_data");
+                URL url = new URL(ServerConfig.BASE_URL + "/insert_dev_data");
                 HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 
                 conn.setRequestMethod("POST");

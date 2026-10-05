@@ -23,6 +23,7 @@ import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
@@ -39,22 +40,6 @@ public class HouseListActivity extends AppCompatActivity {
     ArrayList<House> houses = new ArrayList<>();
 
     private static final String TAG = "HouseListActivity";
-
-    // 🔴 ТЕСТ: пока сервер не отдаёт "tasks", подставляем задачи сами.
-    // Когда сервер начнёт отдавать задачи, поставить false (или удалить вместе с testTasks)
-    private static final boolean USE_TEST_TASKS = true;
-
-    private static JSONArray testTasks(int houseId) throws org.json.JSONException {
-        switch (houseId) {
-            case 1: // Kalamaja 55: одна задача
-                return new JSONArray("[{\"device_type\":\"water_meter\",\"action_type\":\"replace\"}]");
-            case 2: // Majaka 5: две задачи
-                return new JSONArray("[{\"device_type\":\"allocator\",\"action_type\":\"install\"},"
-                        + "{\"device_type\":\"water_meter\",\"action_type\":\"install\"}]");
-            default: // остальные дома: без задачи, ручной выбор
-                return null;
-        }
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -118,8 +103,8 @@ public class HouseListActivity extends AppCompatActivity {
                 HttpsURLConnection.setDefaultHostnameVerifier((hostname, session) -> true);
                 // -------------------------------------
 
-                URL url = new URL("https://arvestused.agr-torud.ee/get_house_list");
-                HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
+                URL url = new URL(ServerConfig.BASE_URL + "/get_house_list");
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                 conn.setRequestMethod("GET");
                 conn.setConnectTimeout(5000);
                 conn.setReadTimeout(5000);
@@ -148,9 +133,6 @@ public class HouseListActivity extends AppCompatActivity {
 
                     // Задачи из дашборда: каждая задача = отдельная строка в списке
                     JSONArray tasks = obj.optJSONArray("tasks");
-                    if (USE_TEST_TASKS && (tasks == null || tasks.length() == 0)) {
-                        tasks = testTasks(house.id);
-                    }
                     if (tasks == null || tasks.length() == 0) {
                         loaded.add(house);
                     } else {
