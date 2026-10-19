@@ -80,6 +80,8 @@
     <string name="hint_radiator_depth_other">Sisesta sügavus</string>
     <string name="hint_radiator_length_other">Sisesta pikkus</string>
     <string name="dim_other">Muu</string>
+    <!-- Первый пункт выпадающих списков: ничего не выбрано, на сервер уходит пусто -->
+    <string name="not_selected">—</string>
 
     <string name="hint_allocator_comment">Jaoturi märkus</string>
 
@@ -98,7 +100,37 @@
     <string name="server_error">Serveri viga</string>
     <string name="send_error">Viga saatmisel</string>
 
+    <string name="installer_label">Paigaldaja: %1$s</string>
+    <string name="installer_change">Paigaldaja: %1$s · muuda</string>
+    <string name="installer_dialog_title">Sinu nimi</string>
+    <string name="installer_dialog_message">Nimi lisatakse igale aruandele, et kontor teaks, kes paigaldas.</string>
+    <string name="installer_hint">Ees- ja perekonnanimi</string>
+    <string name="installer_required">Sisesta oma nimi</string>
+    <string name="btn_ok">OK</string>
+    <string name="btn_cancel">Tagasi</string>
+    <string name="house_list_error">Majade laadimine ebaõnnestus. Kontrolli internetti ja puuduta siin, et uuesti proovida.</string>
+    <string name="house_list_empty">Ülesandeid pole. Puuduta, et värskendada.</string>
+
+    <string name="sending">Saadan…</string>
+    <string name="error_device_type">Vali seadme tüüp</string>
+    <string name="error_action">Vali toiming</string>
+    <string name="error_apartment">Sisesta korteri number</string>
+    <string name="error_qr">Skanni või sisesta QR-kood</string>
+    <string name="warn_title">Kas saata ikkagi?</string>
+    <string name="warn_photo_before">Enne tööde pilt puudub</string>
+    <string name="warn_photo_after">Pärast tööde pilt puudub</string>
+    <string name="warn_signature">Omaniku allkiri puudub</string>
+    <string name="warn_last_reading">Viimane näit puudub</string>
+    <string name="btn_send_anyway">Saada</string>
+    <string name="camera_permission_needed">Pildistamiseks luba rakendusel kaamerat kasutada</string>
+    <string name="camera_error">Kaamerat ei õnnestunud avada</string>
+    <string name="photo_error">Pilti ei õnnestunud salvestada, proovi uuesti</string>
+    <string name="save_success_cleared">Andmed saadetud! Vorm on järgmise korteri jaoks tühi.</string>
+    <string name="server_error_code">Serveri viga (%1$d). Andmed jäid vormi alles, proovi uuesti.</string>
+    <string name="send_error_kept">Saatmine ebaõnnestus. Kontrolli internetti — andmed jäid vormi alles.</string>
+
     <string-array name="radiator_type_options">
+        <item>@string/not_selected</item>
         <item>Alumiinium</item>
         <item>Malm</item>
         <item>Raud</item>
@@ -106,6 +138,7 @@
     </string-array>
 
     <string-array name="radiator_panel_type_options">
+        <item>@string/not_selected</item>
         <item>11</item>
         <item>21</item>
         <item>22</item>
@@ -114,6 +147,7 @@
     </string-array>
 
     <string-array name="radiator_height_options">
+        <item>@string/not_selected</item>
         <item>300</item>
         <item>450</item>
         <item>500</item>
@@ -124,6 +158,7 @@
     </string-array>
 
     <string-array name="radiator_length_options">
+        <item>@string/not_selected</item>
         <item>500</item>
         <item>600</item>
         <item>800</item>
@@ -137,6 +172,7 @@
 
     <!-- PLACEHOLDER väärtused - vahetatakse hiljem päris mõõtude vastu -->
     <string-array name="radiator_dim_presets">
+        <item>@string/not_selected</item>
         <item>300 mm</item>
         <item>500 mm</item>
         <item>600 mm</item>

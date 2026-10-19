@@ -1,14 +1,13 @@
 package com.example.qrscannerapp;
 
 import android.Manifest;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
-import android.provider.MediaStore;
-import android.util.Base64;
-import android.util.Log;
 import android.text.InputType;
+import android.text.TextUtils;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
@@ -17,22 +16,35 @@ import android.widget.*;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
+import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.journeyapps.barcodescanner.ScanContract;
 import com.journeyapps.barcodescanner.ScanOptions;
 
-import java.io.ByteArrayOutputStream;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -54,10 +66,16 @@ public class MainActivity extends AppCompatActivity {
     private View waterMeterSection, allocatorSection, beforePhotoGroup, lastReadingGroup;
 
     private ImageView imgBefore, imgAfter;
-    private Bitmap beforeBitmap, afterBitmap;
+    // Полноразмерные фото лежат файлами: переживают перезапуск активити, пока открыта камера
+    private File beforeFile, afterFile, pendingPhotoFile;
     private boolean isBeforePhoto = true;
 
     private SignatureView signatureView;
+    private Button btnSave;
+
+    // id отчёта: повторная отправка после обрыва связи не создаёт дубль на сервере
+    private String clientUuid;
+    private boolean sending = false;
 
     // Ключ поля (например "apartment") -> блок "галочка + комментарий"
     private final Map<String, FieldComment> fieldComments = new LinkedHashMap<>();
@@ -81,29 +99,33 @@ public class MainActivity extends AppCompatActivity {
 
     private ActivityResultLauncher<ScanOptions> scanLauncher;
 
-    private ActivityResultLauncher<Intent> cameraLauncher =
-            registerForActivityResult(
-                    new ActivityResultContracts.StartActivityForResult(),
-                    result -> {
-                        if (result.getResultCode() == RESULT_OK && result.getData() != null) {
-                            Bitmap image = (Bitmap) result.getData().getExtras().get("data");
-                            Bitmap scaled = Bitmap.createScaledBitmap(image, 600, 800, true);
+    private final ActivityResultLauncher<Uri> takePictureLauncher =
+            registerForActivityResult(new ActivityResultContracts.TakePicture(), this::onPhotoTaken);
 
-                            if (isBeforePhoto) {
-                                beforeBitmap = scaled;
-                                imgBefore.setImageBitmap(scaled);
-                            } else {
-                                afterBitmap = scaled;
-                                imgAfter.setImageBitmap(scaled);
-                            }
-                        }
-                    }
-            );
+    private final ActivityResultLauncher<String> cameraPermissionLauncher =
+            registerForActivityResult(new ActivityResultContracts.RequestPermission(), granted -> {
+                if (granted) {
+                    openCamera();
+                } else {
+                    Toast.makeText(this, R.string.camera_permission_needed, Toast.LENGTH_LONG).show();
+                }
+            });
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        if (savedInstanceState != null) {
+            beforeFile = fileOrNull(savedInstanceState.getString("before_file"));
+            afterFile = fileOrNull(savedInstanceState.getString("after_file"));
+            pendingPhotoFile = fileOrNull(savedInstanceState.getString("pending_file"));
+            isBeforePhoto = savedInstanceState.getBoolean("is_before", true);
+            clientUuid = savedInstanceState.getString("client_uuid");
+        }
+        if (clientUuid == null) {
+            clientUuid = UUID.randomUUID().toString();
+        }
 
         View mainScroll = findViewById(R.id.mainScroll);
         final int initialPaddingLeft = mainScroll.getPaddingLeft();
@@ -197,7 +219,7 @@ public class MainActivity extends AppCompatActivity {
         Button btnPhotoBefore = findViewById(R.id.btnPhotoBefore);
         Button btnPhotoAfter = findViewById(R.id.btnPhotoAfter);
         Button btnScan = findViewById(R.id.btnScan);
-        Button btnSave = findViewById(R.id.btnSave);
+        btnSave = findViewById(R.id.btnSave);
         Button btnBack = findViewById(R.id.btnBackToList);
         Button btnClearSignature = findViewById(R.id.btnClearSignature);
 
@@ -231,6 +253,7 @@ public class MainActivity extends AppCompatActivity {
                     processed = qr.substring(6);
                 }
                 etQrId.setText(processed);
+                etQrId.setError(null);
                 Toast.makeText(this, "QR: " + processed, Toast.LENGTH_SHORT).show();
             }
         });
@@ -260,7 +283,27 @@ public class MainActivity extends AppCompatActivity {
             applyPresetTask();
         }
 
-        requestCameraPermission();
+        String installer = InstallerPrefs.getName(this);
+        if (!installer.isEmpty()) {
+            tvHouse.append("\n" + getString(R.string.installer_label, installer));
+        }
+
+        showPreview(imgBefore, beforeFile);
+        showPreview(imgAfter, afterFile);
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString("before_file", beforeFile != null ? beforeFile.getPath() : null);
+        outState.putString("after_file", afterFile != null ? afterFile.getPath() : null);
+        outState.putString("pending_file", pendingPhotoFile != null ? pendingPhotoFile.getPath() : null);
+        outState.putBoolean("is_before", isBeforePhoto);
+        outState.putString("client_uuid", clientUuid);
+    }
+
+    private static File fileOrNull(String path) {
+        return path != null ? new File(path) : null;
     }
 
     private void applyPresetTask() {
@@ -387,22 +430,62 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void openCamera() {
-        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        cameraLauncher.launch(intent);
-    }
-
-    private void requestCameraPermission() {
+        // Приложение объявляет CAMERA, поэтому без разрешения системная камера не откроется
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
                 != PackageManager.PERMISSION_GRANTED) {
-            requestPermissions(new String[]{Manifest.permission.CAMERA}, 100);
+            cameraPermissionLauncher.launch(Manifest.permission.CAMERA);
+            return;
+        }
+
+        try {
+            File dir = new File(getFilesDir(), "photos");
+            if (!dir.exists() && !dir.mkdirs()) throw new IOException("Cannot create " + dir);
+            pendingPhotoFile = new File(dir, (isBeforePhoto ? "before_" : "after_") + System.currentTimeMillis() + ".jpg");
+            Uri uri = FileProvider.getUriForFile(this, getPackageName() + ".fileprovider", pendingPhotoFile);
+            takePictureLauncher.launch(uri);
+        } catch (Exception e) {
+            Log.e("CAMERA", "Cannot open camera", e);
+            pendingPhotoFile = null;
+            Toast.makeText(this, R.string.camera_error, Toast.LENGTH_LONG).show();
         }
     }
 
-    private String bitmapToBase64(Bitmap bitmap) {
-        if (bitmap == null) return "";
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 80, baos);
-        return Base64.encodeToString(baos.toByteArray(), Base64.DEFAULT);
+    private void onPhotoTaken(Boolean success) {
+        File taken = pendingPhotoFile;
+        pendingPhotoFile = null;
+
+        if (!Boolean.TRUE.equals(success) || taken == null || !taken.exists() || taken.length() == 0) {
+            deleteQuietly(taken);
+            if (Boolean.TRUE.equals(success)) {
+                Toast.makeText(this, R.string.photo_error, Toast.LENGTH_LONG).show();
+            }
+            return;
+        }
+
+        if (isBeforePhoto) {
+            deleteQuietly(beforeFile);
+            beforeFile = taken;
+            showPreview(imgBefore, beforeFile);
+        } else {
+            deleteQuietly(afterFile);
+            afterFile = taken;
+            showPreview(imgAfter, afterFile);
+        }
+    }
+
+    private void showPreview(ImageView view, File file) {
+        Bitmap preview = PhotoUtils.load(file, PhotoUtils.PREVIEW_MAX_SIDE);
+        if (preview != null) {
+            view.setImageBitmap(preview);
+        } else {
+            view.setImageDrawable(null);
+        }
+    }
+
+    private static void deleteQuietly(File file) {
+        if (file != null && file.exists() && !file.delete()) {
+            Log.w("CAMERA", "Cannot delete " + file);
+        }
     }
 
     private void clearForm() {
@@ -421,6 +504,8 @@ public class MainActivity extends AppCompatActivity {
         etRadiatorLengthOther.setText("");
         etPhotoBeforeComment.setText("");
         etPhotoAfterComment.setText("");
+        etApartment.setError(null);
+        etQrId.setError(null);
 
         rgDeviceType.clearCheck();
         rgAction.clearCheck();
@@ -453,166 +538,227 @@ public class MainActivity extends AppCompatActivity {
             comment.toggle.setChecked(false);
         }
 
-        beforeBitmap = null;
-        afterBitmap = null;
+        deleteQuietly(beforeFile);
+        deleteQuietly(afterFile);
+        beforeFile = null;
+        afterFile = null;
         imgBefore.setImageDrawable(null);
         imgAfter.setImageDrawable(null);
 
         signatureView.clear();
 
+        // Новый отчёт — новый id
+        clientUuid = UUID.randomUUID().toString();
+
         updateFormVisibility();
     }
 
     private void sendPost() {
+        if (sending) return;
+
+        // Обязательное: без этого отчёт в дашборде бесполезен
+        if (rgDeviceType.getCheckedRadioButtonId() == -1) {
+            showError(rgDeviceType, getString(R.string.error_device_type));
+            return;
+        }
+        if (rgAction.getCheckedRadioButtonId() == -1) {
+            showError(rgAction, getString(R.string.error_action));
+            return;
+        }
+        if (etApartment.getText().toString().trim().isEmpty()) {
+            etApartment.setError(getString(R.string.error_apartment));
+            showError(etApartment, getString(R.string.error_apartment));
+            return;
+        }
+        if (etQrId.getText().toString().trim().isEmpty()) {
+            etQrId.setError(getString(R.string.error_qr));
+            showError(etQrId, getString(R.string.error_qr));
+            return;
+        }
+
+        // Не обязательное, но обычно забывают случайно — переспрашиваем
+        boolean isReplace = rgAction.getCheckedRadioButtonId() == R.id.rbReplace;
+        boolean isWaterMeter = rgDeviceType.getCheckedRadioButtonId() == R.id.rbWaterMeter;
+        List<String> warnings = new ArrayList<>();
+        if (isReplace && beforeFile == null) warnings.add(getString(R.string.warn_photo_before));
+        if (afterFile == null) warnings.add(getString(R.string.warn_photo_after));
+        if (isReplace && isWaterMeter && etLastReading.getText().toString().trim().isEmpty()) {
+            warnings.add(getString(R.string.warn_last_reading));
+        }
+        if (!signatureView.hasSignature()) warnings.add(getString(R.string.warn_signature));
+
+        if (warnings.isEmpty()) {
+            doSend();
+        } else {
+            new AlertDialog.Builder(this)
+                    .setTitle(R.string.warn_title)
+                    .setMessage("• " + TextUtils.join("\n• ", warnings))
+                    .setPositiveButton(R.string.btn_send_anyway, (dialog, which) -> doSend())
+                    .setNegativeButton(R.string.btn_cancel, null)
+                    .show();
+        }
+    }
+
+    private void showError(View field, String message) {
+        Toast.makeText(this, message, Toast.LENGTH_LONG).show();
+        field.getParent().requestChildFocus(field, field);
+        field.requestFocus();
+    }
+
+    // Значения формы читаем в UI-потоке; в фоне — только фото и сеть
+    private Map<String, String> collectFormData() {
+        boolean isAllocator = rgDeviceType.getCheckedRadioButtonId() == R.id.rbAllocator;
+        boolean isReplace = rgAction.getCheckedRadioButtonId() == R.id.rbReplace;
+
+        // Не выбрано — пусто, а не значение по умолчанию (раньше всегда уходило DN15 / külm)
+        String dnType = "";
+        if (rgDNType.getCheckedRadioButtonId() == R.id.rgDN15) dnType = "15";
+        if (rgDNType.getCheckedRadioButtonId() == R.id.rgDN20) dnType = "20";
+
+        String waterType = "";
+        if (rgWaterType.getCheckedRadioButtonId() == R.id.rbCold) waterType = "1"; // külm
+        if (rgWaterType.getCheckedRadioButtonId() == R.id.rbHot) waterType = "2";  // soe
+
+        Map<String, String> data = new LinkedHashMap<>();
+        data.put("house_id", String.valueOf(houseId));
+        data.put("client_uuid", clientUuid);
+        data.put("installer", InstallerPrefs.getName(this));
+        data.put("device_type", isAllocator ? House.DEVICE_ALLOCATOR : House.DEVICE_WATER_METER);
+        data.put("action_type", isReplace ? House.ACTION_REPLACE : House.ACTION_INSTALL);
+        data.put("apartment", etApartment.getText().toString().trim());
+        data.put("qr_id", etQrId.getText().toString().trim());
+        data.put("last_reading", isReplace ? etLastReading.getText().toString().trim() : "");
+        data.put("dn_type", dnType);
+        data.put("water_type", waterType);
+        data.put("size", getSelectedText(rgSize));
+        data.put("kitchen_floor", cbKitchenFloor.isChecked() ? "1" : "0");
+        data.put("kitchen_ceiling", cbKitchenCeiling.isChecked() ? "1" : "0");
+        data.put("kitchen_comment", etKitchenComment.getText().toString());
+        data.put("bathroom_floor", cbBathroomFloor.isChecked() ? "1" : "0");
+        data.put("bathroom_ceiling", cbBathroomCeiling.isChecked() ? "1" : "0");
+        data.put("bathroom_comment", etBathroomComment.getText().toString());
+        data.put("allocator_location", getSelectedText(rgAllocatorLocation));
+        data.put("allocator_location_comment", etAllocatorLocationComment.getText().toString());
+        data.put("radiator_type", getSpinnerValue(spRadiatorType, etRadiatorTypeOther));
+        data.put("radiator_panel_type", getSpinnerValue(spRadiatorPanelType, etRadiatorPanelTypeOther));
+        data.put("radiator_width", getSpinnerValue(spRadiatorWidth, etRadiatorWidthOther));
+        data.put("radiator_depth", getSpinnerValue(spRadiatorDepth, etRadiatorDepthOther));
+        data.put("radiator_height", getSpinnerValue(spRadiatorHeight, etRadiatorHeightOther));
+        data.put("radiator_length", getSpinnerValue(spRadiatorLength, etRadiatorLengthOther));
+        data.put("allocator_comment", etAllocatorComment.getText().toString());
+        data.put("photo_before_comment", etPhotoBeforeComment.getText().toString());
+        data.put("photo_after_comment", etPhotoAfterComment.getText().toString());
+        for (Map.Entry<String, FieldComment> entry : fieldComments.entrySet()) {
+            data.put(entry.getKey() + "_comment", entry.getValue().getValue());
+        }
+        return data;
+    }
+
+    private void doSend() {
+        if (sending) return;
+        setSending(true);
+
+        final Map<String, String> data = collectFormData();
+        final File before = rgAction.getCheckedRadioButtonId() == R.id.rbReplace ? beforeFile : null;
+        final File after = afterFile;
+        final String signatureImage = PhotoUtils.toBase64Jpeg(signatureView.getSignatureBitmap());
 
         new Thread(() -> {
+            int responseCode = -1;
+            String validationError = null;
+            boolean ok = false;
+
             try {
+                data.put("photo_before", PhotoUtils.toBase64Jpeg(PhotoUtils.load(before, PhotoUtils.UPLOAD_MAX_SIDE)));
+                data.put("photo_after", PhotoUtils.toBase64Jpeg(PhotoUtils.load(after, PhotoUtils.UPLOAD_MAX_SIDE)));
+                data.put("signature", signatureImage);
 
-                String apartment = etApartment.getText().toString();
-                String qrId = etQrId.getText().toString();
-
-                boolean isAllocator = rgDeviceType.getCheckedRadioButtonId() == R.id.rbAllocator;
-                String deviceType = isAllocator ? "allocator" : "water_meter";
-
-                boolean isReplace = rgAction.getCheckedRadioButtonId() == R.id.rbReplace;
-                String actionType = isReplace ? "replace" : "install";
-
-                String lastReading = isReplace ? etLastReading.getText().toString() : "";
-
-                int dnType = 15;
-                if (rgDNType.getCheckedRadioButtonId() == R.id.rgDN20) {
-                    dnType = 20;
+                StringBuilder body = new StringBuilder();
+                for (Map.Entry<String, String> entry : data.entrySet()) {
+                    if (body.length() > 0) body.append('&');
+                    body.append(entry.getKey()).append('=')
+                            .append(URLEncoder.encode(entry.getValue() != null ? entry.getValue() : "", "UTF-8"));
                 }
-
-                int waterType = 1; // külm
-                if (rgWaterType.getCheckedRadioButtonId() == R.id.rbHot) {
-                    waterType = 2; // soe
-                }
-
-                String size = getSelectedText(rgSize);
-
-                String kitchenFloor = cbKitchenFloor.isChecked() ? "1" : "0";
-                String kitchenCeiling = cbKitchenCeiling.isChecked() ? "1" : "0";
-                String kitchenComment = etKitchenComment.getText().toString();
-
-                String bathroomFloor = cbBathroomFloor.isChecked() ? "1" : "0";
-                String bathroomCeiling = cbBathroomCeiling.isChecked() ? "1" : "0";
-                String bathroomComment = etBathroomComment.getText().toString();
-
-                String allocatorLocation = getSelectedText(rgAllocatorLocation);
-                String allocatorLocationComment = etAllocatorLocationComment.getText().toString();
-
-                String radiatorType = getSpinnerValue(spRadiatorType, etRadiatorTypeOther);
-                String radiatorPanelType = getSpinnerValue(spRadiatorPanelType, etRadiatorPanelTypeOther);
-                String radiatorWidth = getSpinnerValue(spRadiatorWidth, etRadiatorWidthOther);
-                String radiatorDepth = getSpinnerValue(spRadiatorDepth, etRadiatorDepthOther);
-                String radiatorHeight = getSpinnerValue(spRadiatorHeight, etRadiatorHeightOther);
-                String radiatorLength = getSpinnerValue(spRadiatorLength, etRadiatorLengthOther);
-                String allocatorComment = etAllocatorComment.getText().toString();
-
-                String photoBeforeComment = etPhotoBeforeComment.getText().toString();
-                String photoAfterComment = etPhotoAfterComment.getText().toString();
-
-                String beforeImage = bitmapToBase64(beforeBitmap);
-                String afterImage = bitmapToBase64(afterBitmap);
-                String signatureImage = bitmapToBase64(signatureView.getSignatureBitmap());
-
-                String postData =
-                        "house_id=" + URLEncoder.encode(String.valueOf(houseId), "UTF-8") +
-                                "&device_type=" + URLEncoder.encode(deviceType, "UTF-8") +
-                                "&action_type=" + URLEncoder.encode(actionType, "UTF-8") +
-                                "&apartment=" + URLEncoder.encode(apartment, "UTF-8") +
-                                "&qr_id=" + URLEncoder.encode(qrId, "UTF-8") +
-                                "&last_reading=" + URLEncoder.encode(lastReading, "UTF-8") +
-                                "&dn_type=" + dnType +
-                                "&water_type=" + waterType +
-                                "&size=" + URLEncoder.encode(size, "UTF-8") +
-                                "&kitchen_floor=" + kitchenFloor +
-                                "&kitchen_ceiling=" + kitchenCeiling +
-                                "&kitchen_comment=" + URLEncoder.encode(kitchenComment, "UTF-8") +
-                                "&bathroom_floor=" + bathroomFloor +
-                                "&bathroom_ceiling=" + bathroomCeiling +
-                                "&bathroom_comment=" + URLEncoder.encode(bathroomComment, "UTF-8") +
-                                "&allocator_location=" + URLEncoder.encode(allocatorLocation, "UTF-8") +
-                                "&allocator_location_comment=" + URLEncoder.encode(allocatorLocationComment, "UTF-8") +
-                                "&radiator_type=" + URLEncoder.encode(radiatorType, "UTF-8") +
-                                "&radiator_panel_type=" + URLEncoder.encode(radiatorPanelType, "UTF-8") +
-                                "&radiator_width=" + URLEncoder.encode(radiatorWidth, "UTF-8") +
-                                "&radiator_depth=" + URLEncoder.encode(radiatorDepth, "UTF-8") +
-                                "&radiator_height=" + URLEncoder.encode(radiatorHeight, "UTF-8") +
-                                "&radiator_length=" + URLEncoder.encode(radiatorLength, "UTF-8") +
-                                "&allocator_comment=" + URLEncoder.encode(allocatorComment, "UTF-8") +
-                                "&photo_before_comment=" + URLEncoder.encode(photoBeforeComment, "UTF-8") +
-                                "&photo_after_comment=" + URLEncoder.encode(photoAfterComment, "UTF-8") +
-                                "&photo_before=" + URLEncoder.encode(beforeImage, "UTF-8") +
-                                "&photo_after=" + URLEncoder.encode(afterImage, "UTF-8") +
-                                "&signature=" + URLEncoder.encode(signatureImage, "UTF-8");
-
-                StringBuilder commentsData = new StringBuilder();
-                for (Map.Entry<String, FieldComment> entry : fieldComments.entrySet()) {
-                    commentsData.append("&").append(entry.getKey()).append("_comment=")
-                            .append(URLEncoder.encode(entry.getValue().getValue(), "UTF-8"));
-                }
-                postData += commentsData;
-
-                Log.d("POST_DATA", postData);
 
                 URL url = new URL(ServerConfig.BASE_URL + "/insert_dev_data");
                 HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-
                 conn.setRequestMethod("POST");
                 conn.setDoOutput(true);
-                conn.setConnectTimeout(15000);
-                conn.setReadTimeout(15000);
+                conn.setConnectTimeout(20000);
+                // Два фото и подпись по мобильной сети — даём время
+                conn.setReadTimeout(60000);
                 conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+                conn.setRequestProperty("Accept", "application/json");
 
-                OutputStream os = conn.getOutputStream();
-                os.write(postData.getBytes("UTF-8"));
-                os.flush();
-                os.close();
-
-                int responseCode = conn.getResponseCode();
-                Log.d("POST", "Response code: " + responseCode);
-
-                java.io.InputStream is;
-
-                if (responseCode >= 200 && responseCode < 400) {
-                    is = conn.getInputStream();
-                } else {
-                    is = conn.getErrorStream();
+                try (OutputStream os = conn.getOutputStream()) {
+                    os.write(body.toString().getBytes(StandardCharsets.UTF_8));
                 }
 
-                java.io.BufferedReader reader =
-                        new java.io.BufferedReader(new java.io.InputStreamReader(is));
-
-                StringBuilder response = new StringBuilder();
-                String line;
-
-                while ((line = reader.readLine()) != null) {
-                    response.append(line);
-                }
-
-                reader.close();
+                responseCode = conn.getResponseCode();
+                String response = readAll(responseCode < 400 ? conn.getInputStream() : conn.getErrorStream());
                 conn.disconnect();
+                Log.d("POST", "Response " + responseCode + ": "
+                        + (response.length() > 300 ? response.substring(0, 300) : response));
 
-                Log.d("SERVER_RESPONSE", response.toString());
-
-                runOnUiThread(() -> {
-                    if (responseCode == 200) {
-                        Toast.makeText(this, "Andmed saadetud!", Toast.LENGTH_LONG).show();
-                    } else {
-                        Toast.makeText(this, "Server error: " + responseCode, Toast.LENGTH_LONG).show();
-                    }
-                });
-
+                if (responseCode == 200) {
+                    ok = "ok".equals(new JSONObject(response).optString("status"));
+                } else if (responseCode == 422) {
+                    validationError = firstValidationError(response);
+                }
             } catch (Exception e) {
                 Log.e("POST_ERROR", "Send error", e);
-
-                runOnUiThread(() ->
-                        Toast.makeText(this, "Viga saatmisel", Toast.LENGTH_LONG).show()
-                );
             }
+
+            final boolean success = ok;
+            final int code = responseCode;
+            final String message = validationError;
+            runOnUiThread(() -> {
+                if (isFinishing() || isDestroyed()) return;
+                setSending(false);
+                if (success) {
+                    Toast.makeText(this, R.string.save_success_cleared, Toast.LENGTH_LONG).show();
+                    clearForm();
+                    findViewById(R.id.mainScroll).scrollTo(0, 0);
+                } else if (message != null) {
+                    Toast.makeText(this, message, Toast.LENGTH_LONG).show();
+                } else if (code > 0) {
+                    Toast.makeText(this, getString(R.string.server_error_code, code), Toast.LENGTH_LONG).show();
+                } else {
+                    Toast.makeText(this, R.string.send_error_kept, Toast.LENGTH_LONG).show();
+                }
+            });
         }).start();
+    }
+
+    private void setSending(boolean value) {
+        sending = value;
+        btnSave.setEnabled(!value);
+        btnSave.setText(value ? R.string.sending : R.string.btn_save);
+    }
+
+    private static String readAll(InputStream stream) throws IOException {
+        if (stream == null) return "";
+        StringBuilder result = new StringBuilder();
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                result.append(line);
+            }
+        }
+        return result.toString();
+    }
+
+    // {"status":"error","errors":{"apartment":["..."]}} -> первый текст ошибки
+    private static String firstValidationError(String response) {
+        try {
+            JSONObject errors = new JSONObject(response).optJSONObject("errors");
+            if (errors == null) return null;
+            Iterator<String> keys = errors.keys();
+            if (!keys.hasNext()) return null;
+            return errors.getJSONArray(keys.next()).optString(0, null);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     private String getSelectedText(RadioGroup group) {
@@ -625,6 +771,9 @@ public class MainActivity extends AppCompatActivity {
     private String getSpinnerValue(Spinner spinner, EditText otherField) {
         Object selected = spinner.getSelectedItem();
         String value = selected != null ? selected.toString() : "";
+        if (getString(R.string.not_selected).equals(value)) {
+            return "";
+        }
         if (OTHER_OPTION.equals(value)) {
             return otherField.getText().toString();
         }

@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Папка, куда камера пишет фото отчёта (MainActivity.photoDir) -->
+<paths>
+    <files-path name="photos" path="photos/" />
+</paths>

@@ -36,6 +36,18 @@
                 android:text="@string/house_list_subtitle"
                 android:textColor="#EAF2FF"
                 android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/tvInstaller"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:background="?attr/selectableItemBackground"
+                android:minHeight="48dp"
+                android:gravity="center_vertical"
+                android:textColor="@color/white"
+                android:textSize="17sp"
+                android:textStyle="bold" />
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 

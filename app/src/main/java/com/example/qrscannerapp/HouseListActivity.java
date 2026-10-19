@@ -2,6 +2,8 @@ package com.example.qrscannerapp;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.InputType;
+import android.widget.EditText;
 import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -10,7 +12,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -25,18 +26,17 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.security.cert.X509Certificate;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
+import androidx.appcompat.app.AlertDialog;
 
 public class HouseListActivity extends AppCompatActivity {
 
     ListView listView;
     TextView tvLoading;
+    TextView tvInstaller;
+    private boolean loading = false;
     ArrayList<House> houses = new ArrayList<>();
 
     private static final String TAG = "HouseListActivity";
@@ -66,10 +66,23 @@ public class HouseListActivity extends AppCompatActivity {
         listView = findViewById(R.id.listHouses);
         tvLoading = findViewById(R.id.tvLoading);
         listView.setEmptyView(tvLoading);
+        // Ошибка или пустой список — нажатие загружает заново
+        tvLoading.setOnClickListener(v -> loadHousesFromServer());
+
+        tvInstaller = findViewById(R.id.tvInstaller);
+        tvInstaller.setOnClickListener(v -> askInstallerName());
+        updateInstallerLabel();
+        if (InstallerPrefs.getName(this).isEmpty()) {
+            askInstallerName();
+        }
 
         loadHousesFromServer();
 
         listView.setOnItemClickListener((parent, view, position, id) -> {
+            if (InstallerPrefs.getName(this).isEmpty()) {
+                askInstallerName();
+                return;
+            }
             House selectedHouse = houses.get(position);
 
             Intent intent = new Intent(this, MainActivity.class);
@@ -86,31 +99,72 @@ public class HouseListActivity extends AppCompatActivity {
         });
     }
 
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        // Вернулись из формы — контора могла добавить или снять задачи
+        loadHousesFromServer();
+    }
+
+    private void updateInstallerLabel() {
+        String name = InstallerPrefs.getName(this);
+        tvInstaller.setText(getString(R.string.installer_change, name.isEmpty() ? "—" : name));
+    }
+
+    // Имя монтажника: обязательно один раз, потом можно сменить нажатием в шапке
+    private void askInstallerName() {
+        EditText input = new EditText(this);
+        input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_WORDS);
+        input.setHint(R.string.installer_hint);
+        input.setText(InstallerPrefs.getName(this));
+        input.setSelection(input.getText().length());
+
+        int padding = Math.round(20 * getResources().getDisplayMetrics().density);
+        android.widget.FrameLayout container = new android.widget.FrameLayout(this);
+        container.setPadding(padding, 0, padding, 0);
+        container.addView(input);
+
+        boolean firstTime = InstallerPrefs.getName(this).isEmpty();
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setTitle(R.string.installer_dialog_title)
+                .setMessage(R.string.installer_dialog_message)
+                .setView(container)
+                .setCancelable(!firstTime)
+                .setPositiveButton(R.string.btn_ok, null)
+                .create();
+        // Своя проверка, чтобы пустое имя не закрывало диалог
+        dialog.setOnShowListener(d -> dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
+            String name = input.getText().toString().trim();
+            if (name.isEmpty()) {
+                input.setError(getString(R.string.installer_required));
+                return;
+            }
+            InstallerPrefs.setName(this, name);
+            updateInstallerLabel();
+            dialog.dismiss();
+        }));
+        dialog.show();
+    }
+
     private void loadHousesFromServer() {
+        if (loading) return;
+        loading = true;
+        tvLoading.setText(R.string.house_list_loading);
+
         new Thread(() -> {
             try {
-                // --- SSL IGNORE (ТОЛЬКО ДЛЯ ТЕСТОВ) ---
-                TrustManager[] trustAllCerts = new TrustManager[]{
-                        new X509TrustManager() {
-                            public X509Certificate[] getAcceptedIssuers() { return new X509Certificate[0]; }
-                            public void checkClientTrusted(X509Certificate[] certs, String authType) {}
-                            public void checkServerTrusted(X509Certificate[] certs, String authType) {}
-                        }
-                };
-                SSLContext sc = SSLContext.getInstance("SSL");
-                sc.init(null, trustAllCerts, new java.security.SecureRandom());
-                HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
-                HttpsURLConnection.setDefaultHostnameVerifier((hostname, session) -> true);
-                // -------------------------------------
-
                 URL url = new URL(ServerConfig.BASE_URL + "/get_house_list");
                 HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                 conn.setRequestMethod("GET");
-                conn.setConnectTimeout(5000);
-                conn.setReadTimeout(5000);
+                conn.setConnectTimeout(10000);
+                conn.setReadTimeout(15000);
+
+                if (conn.getResponseCode() != HttpURLConnection.HTTP_OK) {
+                    throw new java.io.IOException("HTTP " + conn.getResponseCode());
+                }
 
                 BufferedReader reader = new BufferedReader(
-                        new InputStreamReader(conn.getInputStream())
+                        new InputStreamReader(conn.getInputStream(), StandardCharsets.UTF_8)
                 );
 
                 StringBuilder json = new StringBuilder();
@@ -119,6 +173,7 @@ public class HouseListActivity extends AppCompatActivity {
                     json.append(line);
                 }
                 reader.close();
+                conn.disconnect();
 
                 JSONArray array = new JSONArray(json.toString());
                 ArrayList<House> loaded = new ArrayList<>();
@@ -144,12 +199,11 @@ public class HouseListActivity extends AppCompatActivity {
                             ));
                         }
                     }
-
-                    // 🔴 ОТЛАДКА (можно удалить)
-                    Log.d(TAG, "Loaded house id=" + house.id);
                 }
 
                 runOnUiThread(() -> {
+                    loading = false;
+                    tvLoading.setText(R.string.house_list_empty);
                     houses.clear();
                     houses.addAll(loaded);
                     ArrayAdapter<House> adapter = new HouseAdapter(this, houses);
@@ -160,7 +214,10 @@ public class HouseListActivity extends AppCompatActivity {
                 Log.e(TAG, "Ошибка загрузки домов", e);
 
                 runOnUiThread(() -> {
-                    tvLoading.setText("Majade laadimine ebaõnnestus. Kontrolli internetti ja proovi uuesti.");
+                    loading = false;
+                    houses.clear();
+                    listView.setAdapter(null);
+                    tvLoading.setText(R.string.house_list_error);
                     Toast.makeText(this, "Majade laadimine ebaõnnestus", Toast.LENGTH_LONG).show();
                 });
             }
