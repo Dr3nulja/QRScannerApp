@@ -17,6 +17,8 @@ public class SignatureView extends View {
     private Bitmap bitmap;
     private Canvas canvas;
     private boolean hasSignature = false;
+    // Подпись, пришедшая до того, как у вида появился размер
+    private Bitmap pendingSignature;
 
     public SignatureView(Context context) {
         super(context);
@@ -44,6 +46,11 @@ public class SignatureView extends View {
             bitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
             canvas = new Canvas(bitmap);
             canvas.drawColor(Color.WHITE);
+            if (pendingSignature != null) {
+                Bitmap signature = pendingSignature;
+                pendingSignature = null;
+                setSignature(signature);
+            }
         }
     }
 
@@ -90,10 +97,39 @@ public class SignatureView extends View {
 
     public void clear() {
         path.reset();
+        pendingSignature = null;
         hasSignature = false;
         if (canvas != null) {
             canvas.drawColor(Color.WHITE);
         }
+        invalidate();
+    }
+
+    /**
+     * Вписать готовую подпись (например, нарисованную на весь экран) по центру, без искажений
+     */
+    public void setSignature(Bitmap signature) {
+        if (signature == null) {
+            clear();
+            return;
+        }
+        if (canvas == null) {
+            pendingSignature = signature;
+            hasSignature = true;
+            return;
+        }
+
+        path.reset();
+        canvas.drawColor(Color.WHITE);
+        float scale = Math.min((float) bitmap.getWidth() / signature.getWidth(),
+                (float) bitmap.getHeight() / signature.getHeight());
+        float width = signature.getWidth() * scale;
+        float height = signature.getHeight() * scale;
+        float left = (bitmap.getWidth() - width) / 2f;
+        float top = (bitmap.getHeight() - height) / 2f;
+        canvas.drawBitmap(signature, null, new android.graphics.RectF(left, top, left + width, top + height),
+                new Paint(Paint.FILTER_BITMAP_FLAG));
+        hasSignature = true;
         invalidate();
     }
 
@@ -102,6 +138,7 @@ public class SignatureView extends View {
     }
 
     public Bitmap getSignatureBitmap() {
-        return hasSignature ? bitmap : null;
+        if (!hasSignature) return null;
+        return pendingSignature != null ? pendingSignature : bitmap;
     }
 }

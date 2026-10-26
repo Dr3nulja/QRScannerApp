@@ -24,8 +24,6 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-import com.journeyapps.barcodescanner.ScanContract;
-import com.journeyapps.barcodescanner.ScanOptions;
 
 import org.json.JSONObject;
 
@@ -55,6 +53,8 @@ public class MainActivity extends AppCompatActivity {
     private EditText etAllocatorLocationComment, etAllocatorComment;
     private EditText etRadiatorTypeOther, etRadiatorPanelTypeOther, etRadiatorWidthOther, etRadiatorDepthOther, etRadiatorHeightOther, etRadiatorLengthOther;
     private EditText etPhotoBeforeComment, etPhotoAfterComment;
+    private EditText etRadiatorRibs;
+    private View radiatorRibsGroup, radiatorHeightGroup, radiatorPanelTypeGroup;
     private TextView tvHouse;
 
     private RadioGroup rgDeviceType, rgAction;
@@ -97,7 +97,19 @@ public class MainActivity extends AppCompatActivity {
     private int houseId;
     private String presetDeviceType, presetActionType;
 
-    private ActivityResultLauncher<ScanOptions> scanLauncher;
+    private ActivityResultLauncher<android.content.Intent> scanLauncher;
+
+    // Подпись на весь экран: SignatureActivity кладёт картинку в файл, мы переносим её в маленькое поле
+    private final ActivityResultLauncher<android.content.Intent> largeSignatureLauncher =
+            registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+                if (result.getResultCode() != RESULT_OK) return;
+                Bitmap large = SignatureActivity.readResult(this);
+                if (large != null) {
+                    signatureView.setSignature(large);
+                } else {
+                    signatureView.clear();
+                }
+            });
 
     private final ActivityResultLauncher<Uri> takePictureLauncher =
             registerForActivityResult(new ActivityResultContracts.TakePicture(), this::onPhotoTaken);
@@ -190,7 +202,26 @@ public class MainActivity extends AppCompatActivity {
 
         signatureView = findViewById(R.id.signatureView);
 
-        setupOtherToggle(spRadiatorType, etRadiatorTypeOther);
+        etRadiatorRibs = findViewById(R.id.etRadiatorRibs);
+        radiatorRibsGroup = findViewById(R.id.radiatorRibsGroup);
+        radiatorHeightGroup = findViewById(R.id.radiatorHeightGroup);
+        radiatorPanelTypeGroup = findViewById(R.id.radiatorPanelTypeGroup);
+
+        // Тип радиатора: «Muu» открывает поле, Malm / Alumiinium — рёбра вместо высоты
+        spRadiatorType.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                Object selected = parent.getItemAtPosition(position);
+                boolean isOther = selected != null && OTHER_OPTION.equals(selected.toString());
+                etRadiatorTypeOther.setVisibility(isOther ? View.VISIBLE : View.GONE);
+                updateRadiatorTypeFields();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
+        });
+        selectDefaultRadiatorType();
         setupOtherToggle(spRadiatorPanelType, etRadiatorPanelTypeOther);
         setupOtherToggle(spRadiatorWidth, etRadiatorWidthOther);
         setupOtherToggle(spRadiatorDepth, etRadiatorDepthOther);
@@ -206,6 +237,7 @@ public class MainActivity extends AppCompatActivity {
         addFieldComment(rgWaterType, "water_type");
         addFieldComment(rgSize, "size");
         addFieldComment(etRadiatorTypeOther, "radiator_type");
+        addFieldComment(etRadiatorRibs, "radiator_ribs");
         addFieldComment(etRadiatorPanelTypeOther, "radiator_panel_type");
         addFieldComment(etRadiatorWidthOther, "radiator_width");
         addFieldComment(etRadiatorDepthOther, "radiator_depth");
@@ -222,6 +254,7 @@ public class MainActivity extends AppCompatActivity {
         btnSave = findViewById(R.id.btnSave);
         Button btnBack = findViewById(R.id.btnBackToList);
         Button btnClearSignature = findViewById(R.id.btnClearSignature);
+        Button btnLargeSignature = findViewById(R.id.btnLargeSignature);
 
         btnBack.setOnClickListener(v -> {
             finish();
@@ -238,10 +271,12 @@ public class MainActivity extends AppCompatActivity {
         });
 
         btnClearSignature.setOnClickListener(v -> signatureView.clear());
+        btnLargeSignature.setOnClickListener(v ->
+                largeSignatureLauncher.launch(SignatureActivity.intent(this, signatureView.getSignatureBitmap())));
 
-        scanLauncher = registerForActivityResult(new ScanContract(), result -> {
-            if(result.getContents() != null){
-                String qr = result.getContents();
+        scanLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+            String qr = result.getData() != null ? result.getData().getStringExtra(ScanActivity.EXTRA_RESULT) : null;
+            if (qr != null) {
                 String processed = qr;
                 if (qr.contains("-") && qr.contains("/")) {
                     int dashIndex = qr.indexOf("-");
@@ -312,6 +347,37 @@ public class MainActivity extends AppCompatActivity {
                 ? R.id.rbAllocator : R.id.rbWaterMeter);
         rgAction.check(House.ACTION_REPLACE.equals(presetActionType)
                 ? R.id.rbReplace : R.id.rbInstall);
+    }
+
+    // У отопления по умолчанию «Paneel»
+    private void selectDefaultRadiatorType() {
+        String panel = getString(R.string.radiator_type_panel);
+        for (int i = 0; i < spRadiatorType.getCount(); i++) {
+            if (panel.equals(String.valueOf(spRadiatorType.getItemAtPosition(i)))) {
+                spRadiatorType.setSelection(i);
+                break;
+            }
+        }
+        updateRadiatorTypeFields();
+    }
+
+    private boolean isRibbedRadiator() {
+        Object selected = spRadiatorType.getSelectedItem();
+        String value = selected != null ? selected.toString() : "";
+        return getString(R.string.radiator_type_cast_iron).equals(value)
+                || getString(R.string.radiator_type_aluminium).equals(value);
+    }
+
+    private boolean isPanelRadiator() {
+        Object selected = spRadiatorType.getSelectedItem();
+        return selected != null && getString(R.string.radiator_type_panel).equals(selected.toString());
+    }
+
+    private void updateRadiatorTypeFields() {
+        boolean ribbed = isRibbedRadiator();
+        radiatorRibsGroup.setVisibility(ribbed ? View.VISIBLE : View.GONE);
+        radiatorHeightGroup.setVisibility(ribbed ? View.GONE : View.VISIBLE);
+        radiatorPanelTypeGroup.setVisibility(isPanelRadiator() ? View.VISIBLE : View.GONE);
     }
 
     private void setupOtherToggle(Spinner spinner, EditText otherField) {
@@ -420,13 +486,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void startScan() {
-        ScanOptions options = new ScanOptions();
-        options.setPrompt("Skanni QR");
-        options.setBeepEnabled(true);
-        options.setOrientationLocked(true);
-        options.setDesiredBarcodeFormats(ScanOptions.QR_CODE, ScanOptions.DATA_MATRIX);
-        options.addExtra("TRY_HARDER", true);
-        scanLauncher.launch(options);
+        scanLauncher.launch(new android.content.Intent(this, ScanActivity.class));
     }
 
     private void openCamera() {
@@ -502,6 +562,7 @@ public class MainActivity extends AppCompatActivity {
         etRadiatorDepthOther.setText("");
         etRadiatorHeightOther.setText("");
         etRadiatorLengthOther.setText("");
+        etRadiatorRibs.setText("");
         etPhotoBeforeComment.setText("");
         etPhotoAfterComment.setText("");
         etApartment.setError(null);
@@ -520,7 +581,7 @@ public class MainActivity extends AppCompatActivity {
         cbBathroomFloor.setChecked(false);
         cbBathroomCeiling.setChecked(false);
 
-        spRadiatorType.setSelection(0);
+        selectDefaultRadiatorType();
         spRadiatorPanelType.setSelection(0);
         spRadiatorWidth.setSelection(0);
         spRadiatorDepth.setSelection(0);
@@ -640,10 +701,12 @@ public class MainActivity extends AppCompatActivity {
         data.put("allocator_location", getSelectedText(rgAllocatorLocation));
         data.put("allocator_location_comment", etAllocatorLocationComment.getText().toString());
         data.put("radiator_type", getSpinnerValue(spRadiatorType, etRadiatorTypeOther));
-        data.put("radiator_panel_type", getSpinnerValue(spRadiatorPanelType, etRadiatorPanelTypeOther));
+        data.put("radiator_panel_type", isPanelRadiator() ? getSpinnerValue(spRadiatorPanelType, etRadiatorPanelTypeOther) : "");
         data.put("radiator_width", getSpinnerValue(spRadiatorWidth, etRadiatorWidthOther));
         data.put("radiator_depth", getSpinnerValue(spRadiatorDepth, etRadiatorDepthOther));
-        data.put("radiator_height", getSpinnerValue(spRadiatorHeight, etRadiatorHeightOther));
+        boolean ribbed = isRibbedRadiator();
+        data.put("radiator_ribs", ribbed ? etRadiatorRibs.getText().toString().trim() : "");
+        data.put("radiator_height", ribbed ? "" : getSpinnerValue(spRadiatorHeight, etRadiatorHeightOther));
         data.put("radiator_length", getSpinnerValue(spRadiatorLength, etRadiatorLengthOther));
         data.put("allocator_comment", etAllocatorComment.getText().toString());
         data.put("photo_before_comment", etPhotoBeforeComment.getText().toString());

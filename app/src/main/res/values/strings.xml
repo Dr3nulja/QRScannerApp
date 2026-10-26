@@ -1,5 +1,7 @@
 <resources>
     <string name="app_name">QRScannerApp</string>
+    <string name="scan_prompt">Suuna kaamera koodile. Puuduta ekraani, et teravustada.</string>
+    <string name="scan_torch">Taskulamp</string>
     <string name="house_list_title">Vali maja</string>
     <string name="house_list_subtitle">Suurte kirjadega nimekiri. Puuduta oma maja nime.</string>
     <string name="house_list_loading">Laen majade nimekirja...</string>
@@ -67,6 +69,11 @@
 
     <string name="section_radiator_type">Radiaatori tüüp</string>
     <string name="hint_radiator_type_other">Sisesta radiaatori tüüp</string>
+    <string name="radiator_type_panel">Paneel</string>
+    <string name="radiator_type_cast_iron">Malm</string>
+    <string name="radiator_type_aluminium">Alumiinium</string>
+    <string name="label_radiator_ribs">Ribide arv</string>
+    <string name="hint_radiator_ribs">Sisesta ribide arv</string>
 
     <string name="section_radiator_size">Radiaatori mõõdud</string>
     <string name="label_radiator_panel_type">Tüüp</string>
@@ -91,6 +98,9 @@
     <string name="section_signature">Omaniku allkiri</string>
     <string name="label_sign_hint">Allkirjastage sõrmega</string>
     <string name="btn_clear_signature">Kustuta allkiri</string>
+    <string name="btn_large_signature">⤢ Suur allkiri</string>
+    <string name="btn_signature_done">Valmis</string>
+    <string name="btn_signature_cancel">Tühista</string>
 
     <string name="empty_photo_preview">Siia ilmub foto eelvaade</string>
     <string name="btn_save">Salvesta andmed</string>
@@ -131,8 +141,9 @@
 
     <string-array name="radiator_type_options">
         <item>@string/not_selected</item>
-        <item>Alumiinium</item>
-        <item>Malm</item>
+        <item>@string/radiator_type_panel</item>
+        <item>@string/radiator_type_aluminium</item>
+        <item>@string/radiator_type_cast_iron</item>
         <item>Raud</item>
         <item>Muu</item>
     </string-array>

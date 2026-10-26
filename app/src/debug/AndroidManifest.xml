@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Только для debug-сборки: разрешает http, чтобы ходить на локальный Laravel (php artisan serve) -->
+<!-- Только для debug-сборки: разрешает http, чтобы ходить на тестовый сервер artest.agr-torud.ee (нет https) -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <application android:usesCleartextTraffic="true" />
 </manifest>

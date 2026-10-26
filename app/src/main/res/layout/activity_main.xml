@@ -884,6 +884,37 @@
                         android:textSize="16sp"
                         android:visibility="gone" />
 
+                    <!-- Malm / Alumiinium: ribide arv kõrguse asemel -->
+                    <LinearLayout
+                        android:id="@+id/radiatorRibsGroup"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:visibility="gone">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="14dp"
+                            android:text="@string/label_radiator_ribs"
+                            android:textColor="@color/elder_text_muted"
+                            android:textSize="16sp" />
+
+                        <EditText
+                            android:id="@+id/etRadiatorRibs"
+                            android:layout_width="match_parent"
+                            android:layout_height="60dp"
+                            android:layout_marginTop="6dp"
+                            android:background="@android:drawable/edit_text"
+                            android:hint="@string/hint_radiator_ribs"
+                            android:inputType="number"
+                            android:maxLength="3"
+                            android:padding="16dp"
+                            android:textColor="@color/elder_text"
+                            android:textColorHint="@color/elder_text_muted"
+                            android:textSize="16sp" />
+                    </LinearLayout>
+
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -892,6 +923,13 @@
                         android:textColor="@color/elder_text"
                         android:textSize="18sp"
                         android:textStyle="bold" />
+
+                    <!-- Paneeli tüüp: ainult Paneel-radiaatorile -->
+                    <LinearLayout
+                        android:id="@+id/radiatorPanelTypeGroup"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
 
                     <TextView
                         android:layout_width="match_parent"
@@ -923,6 +961,7 @@
                         android:textColorHint="@color/elder_text_muted"
                         android:textSize="16sp"
                         android:visibility="gone" />
+                    </LinearLayout>
 
                     <TextView
                         android:layout_width="match_parent"
@@ -986,36 +1025,44 @@
                         android:textSize="16sp"
                         android:visibility="gone" />
 
-                    <TextView
+                    <!-- Kõrgus: peidetakse, kui tüüp on Malm või Alumiinium -->
+                    <LinearLayout
+                        android:id="@+id/radiatorHeightGroup"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="14dp"
-                        android:text="@string/label_radiator_height"
-                        android:textColor="@color/elder_text_muted"
-                        android:textSize="16sp" />
+                        android:orientation="vertical">
 
-                    <Spinner
-                        android:id="@+id/spRadiatorHeight"
-                        android:layout_width="match_parent"
-                        android:layout_height="60dp"
-                        android:layout_marginTop="6dp"
-                        android:background="@android:drawable/edit_text"
-                        android:entries="@array/radiator_height_options"
-                        android:padding="16dp" />
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="14dp"
+                            android:text="@string/label_radiator_height"
+                            android:textColor="@color/elder_text_muted"
+                            android:textSize="16sp" />
 
-                    <EditText
-                        android:id="@+id/etRadiatorHeightOther"
-                        android:layout_width="match_parent"
-                        android:layout_height="60dp"
-                        android:layout_marginTop="10dp"
-                        android:background="@android:drawable/edit_text"
-                        android:hint="@string/hint_radiator_height_other"
-                        android:inputType="text"
-                        android:padding="16dp"
-                        android:textColor="@color/elder_text"
-                        android:textColorHint="@color/elder_text_muted"
-                        android:textSize="16sp"
-                        android:visibility="gone" />
+                        <Spinner
+                            android:id="@+id/spRadiatorHeight"
+                            android:layout_width="match_parent"
+                            android:layout_height="60dp"
+                            android:layout_marginTop="6dp"
+                            android:background="@android:drawable/edit_text"
+                            android:entries="@array/radiator_height_options"
+                            android:padding="16dp" />
+
+                        <EditText
+                            android:id="@+id/etRadiatorHeightOther"
+                            android:layout_width="match_parent"
+                            android:layout_height="60dp"
+                            android:layout_marginTop="10dp"
+                            android:background="@android:drawable/edit_text"
+                            android:hint="@string/hint_radiator_height_other"
+                            android:inputType="text"
+                            android:padding="16dp"
+                            android:textColor="@color/elder_text"
+                            android:textColorHint="@color/elder_text_muted"
+                            android:textSize="16sp"
+                            android:visibility="gone" />
+                    </LinearLayout>
 
                     <TextView
                         android:layout_width="match_parent"
@@ -1114,16 +1161,33 @@
                         android:layout_height="match_parent" />
                 </com.google.android.material.card.MaterialCardView>
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnClearSignature"
+                <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="52dp"
+                    android:layout_height="wrap_content"
                     android:layout_marginTop="10dp"
-                    android:text="@string/btn_clear_signature"
-                    android:textAllCaps="false"
-                    android:textSize="16sp"
-                    app:backgroundTint="@color/elder_danger"
-                    app:cornerRadius="16dp" />
+                    android:orientation="vertical">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnLargeSignature"
+                        android:layout_width="match_parent"
+                        android:layout_height="52dp"
+                        android:layout_marginBottom="8dp"
+                        android:text="@string/btn_large_signature"
+                        android:textAllCaps="false"
+                        android:textSize="16sp"
+                        app:backgroundTint="@color/elder_primary"
+                        app:cornerRadius="16dp" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnClearSignature"
+                        android:layout_width="match_parent"
+                        android:layout_height="52dp"
+                        android:text="@string/btn_clear_signature"
+                        android:textAllCaps="false"
+                        android:textSize="16sp"
+                        app:backgroundTint="@color/elder_danger"
+                        app:cornerRadius="16dp" />
+                </LinearLayout>
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 

@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/signatureRoot"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/elder_bg"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/section_signature"
+        android:textColor="@color/elder_text"
+        android:textSize="20sp"
+        android:textStyle="bold" />
+
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="8dp"
+        android:layout_weight="1"
+        app:cardBackgroundColor="@color/white"
+        app:cardCornerRadius="18dp"
+        app:strokeColor="@color/elder_surface_soft"
+        app:strokeWidth="1dp">
+
+        <com.example.qrscannerapp.SignatureView
+            android:id="@+id/largeSignatureView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </com.google.android.material.card.MaterialCardView>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:orientation="horizontal">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnLargeClear"
+            android:layout_width="0dp"
+            android:layout_height="52dp"
+            android:layout_marginEnd="8dp"
+            android:layout_weight="1"
+            android:text="@string/btn_clear_signature"
+            android:textAllCaps="false"
+            android:textSize="16sp"
+            app:backgroundTint="@color/elder_danger"
+            app:cornerRadius="16dp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnLargeCancel"
+            android:layout_width="0dp"
+            android:layout_height="52dp"
+            android:layout_marginEnd="8dp"
+            android:layout_weight="1"
+            android:text="@string/btn_signature_cancel"
+            android:textAllCaps="false"
+            android:textColor="@color/elder_text"
+            android:textSize="16sp"
+            app:backgroundTint="@color/elder_surface_soft_button"
+            app:cornerRadius="16dp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnLargeDone"
+            android:layout_width="0dp"
+            android:layout_height="52dp"
+            android:layout_weight="1"
+            android:text="@string/btn_signature_done"
+            android:textAllCaps="false"
+            android:textSize="16sp"
+            app:backgroundTint="@color/elder_success"
+            app:cornerRadius="16dp" />
+    </LinearLayout>
+</LinearLayout>

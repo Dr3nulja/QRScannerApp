@@ -27,6 +27,17 @@
             </intent-filter>
         </activity>
 
+        <!-- Suur allkiri: horisontaalis, et oleks ruumi allkirjastada -->
+        <activity
+            android:name=".SignatureActivity"
+            android:exported="false"
+            android:screenOrientation="sensorLandscape" />
+
+        <activity
+            android:name=".ScanActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+
         <activity
             android:name=".MainActivity"
             android:screenOrientation="portrait"
