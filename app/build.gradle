@@ -23,13 +23,15 @@ android {
     }
 
     buildTypes {
+        // Пока приложение работает только с тестовым сайтом artest — в обеих сборках.
+        // Боевой сервер (вернуть в release, когда придёт время): https://arvestused.agr-torud.ee
+        // Только https: при http сайт перенаправляет на https, и отправка отчёта (POST) теряется.
         debug {
-            // Тестовый сервер (задеплоенный agr). Работает и на эмуляторе, и на телефоне.
             // Для локального Laravel: '"http://10.0.2.2:8000"' (эмулятор) или "http://<IP компьютера>:8000"
-            buildConfigField "String", "SERVER_URL", '"http://artest.agr-torud.ee"'
+            buildConfigField "String", "SERVER_URL", '"https://artest.agr-torud.ee"'
         }
         release {
-            buildConfigField "String", "SERVER_URL", '"https://arvestused.agr-torud.ee"'
+            buildConfigField "String", "SERVER_URL", '"https://artest.agr-torud.ee"'
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
