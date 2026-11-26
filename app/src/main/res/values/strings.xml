@@ -3,7 +3,7 @@
     <string name="scan_prompt">Suuna kaamera koodile. Puuduta ekraani, et teravustada.</string>
     <string name="scan_torch">Taskulamp</string>
     <string name="house_list_title">Vali maja</string>
-    <string name="house_list_subtitle">Suurte kirjadega nimekiri. Puuduta oma maja nime.</string>
+    <string name="house_list_subtitle">Puuduta maja, kus täna töötad.</string>
     <string name="house_list_loading">Laen majade nimekirja...</string>
     <string name="main_title">Andmete sisestamine</string>
     <string name="main_subtitle">Täida samm-sammult. Kui mõni lahter jääb tühjaks, saad hiljem juurde lisada.</string>
@@ -189,4 +189,11 @@
         <item>600 mm</item>
         <item>Muu</item>
     </string-array>
+    <string name="clear_confirm_title">Tühjendada vorm?</string>
+    <string name="clear_confirm_message">Kõik sisestatud andmed, pildid ja allkiri kustutatakse.</string>
+    <string name="btn_clear_confirm">Tühjenda</string>
+    <string name="leave_confirm_title">Lahkuda vormist?</string>
+    <string name="leave_confirm_message">Vorm on täitmata ja saatmata. Kui lahkud, sisestatud andmed, pildid ja allkiri kaovad.</string>
+    <string name="btn_leave">Lahku</string>
+    <string name="btn_stay">Jää vormi</string>
 </resources>

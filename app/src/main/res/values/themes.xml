@@ -1,5 +1,5 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <style name="Base.Theme.QRScannerApp" parent="Theme.Material3.DayNight.NoActionBar">
+    <style name="Base.Theme.QRScannerApp" parent="Theme.Material3.Light.NoActionBar">
         <item name="colorPrimary">@color/elder_primary</item>
         <item name="colorOnPrimary">@color/white</item>
         <item name="colorPrimaryContainer">@color/elder_surface_soft</item>
@@ -11,6 +11,9 @@
         <item name="android:colorBackground">@color/elder_bg</item>
         <item name="android:statusBarColor">@color/elder_primary_dark</item>
         <item name="android:navigationBarColor">@color/elder_bg</item>
+        <!-- Фон экранов светлый: значки статус-бара и навигации должны быть тёмными, иначе их не видно -->
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowLightNavigationBar">true</item>
     </style>
 
     <style name="Theme.QRScannerApp" parent="Base.Theme.QRScannerApp" />

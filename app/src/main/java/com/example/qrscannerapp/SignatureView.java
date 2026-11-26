@@ -13,6 +13,9 @@ import android.view.View;
 public class SignatureView extends View {
 
     private Path path = new Path();
+    // Длина текущего штриха: касание без движения — не подпись (раньше оно ставило hasSignature)
+    private float strokeLength = 0f;
+    private float lastX, lastY;
     private Paint paint = new Paint();
     private Bitmap bitmap;
     private Canvas canvas;
@@ -35,6 +38,7 @@ public class SignatureView extends View {
         paint.setColor(Color.BLACK);
         paint.setStyle(Paint.Style.STROKE);
         paint.setStrokeJoin(Paint.Join.ROUND);
+        paint.setStrokeCap(Paint.Cap.ROUND);
         paint.setStrokeWidth(6f);
         setClickable(true);
     }
@@ -64,19 +68,29 @@ public class SignatureView extends View {
                 // Не даём ScrollView перехватывать жест, пока рисуется подпись
                 getParent().requestDisallowInterceptTouchEvent(true);
                 path.moveTo(x, y);
+                strokeLength = 0f;
+                lastX = x;
+                lastY = y;
                 return true;
             case MotionEvent.ACTION_MOVE:
                 path.lineTo(x, y);
+                strokeLength += (float) Math.hypot(x - lastX, y - lastY);
+                lastX = x;
+                lastY = y;
                 break;
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_CANCEL:
                 getParent().requestDisallowInterceptTouchEvent(false);
                 path.lineTo(x, y);
-                if (canvas != null) {
-                    canvas.drawPath(path, paint);
+                strokeLength += (float) Math.hypot(x - lastX, y - lastY);
+                // Случайное касание (меньше ~4 dp) не рисуем и подписью не считаем
+                if (strokeLength >= 4 * getResources().getDisplayMetrics().density) {
+                    if (canvas != null) {
+                        canvas.drawPath(path, paint);
+                    }
+                    hasSignature = true;
                 }
                 path.reset();
-                hasSignature = true;
                 break;
             default:
                 return false;

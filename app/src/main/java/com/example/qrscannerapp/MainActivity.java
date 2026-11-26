@@ -6,6 +6,9 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.InputType;
+import android.text.SpannableStringBuilder;
+import android.text.Spanned;
+import android.text.style.RelativeSizeSpan;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.TypedValue;
@@ -14,6 +17,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.*;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AlertDialog;
@@ -66,6 +70,7 @@ public class MainActivity extends AppCompatActivity {
     private View waterMeterSection, allocatorSection, beforePhotoGroup, lastReadingGroup;
 
     private ImageView imgBefore, imgAfter;
+    private TextView tvBeforePlaceholder, tvAfterPlaceholder;
     // Полноразмерные фото лежат файлами: переживают перезапуск активити, пока открыта камера
     private File beforeFile, afterFile, pendingPhotoFile;
     private boolean isBeforePhoto = true;
@@ -199,6 +204,8 @@ public class MainActivity extends AppCompatActivity {
 
         imgBefore = findViewById(R.id.imgBefore);
         imgAfter = findViewById(R.id.imgAfter);
+        tvBeforePlaceholder = findViewById(R.id.tvBeforePlaceholder);
+        tvAfterPlaceholder = findViewById(R.id.tvAfterPlaceholder);
 
         signatureView = findViewById(R.id.signatureView);
 
@@ -256,8 +263,13 @@ public class MainActivity extends AppCompatActivity {
         Button btnClearSignature = findViewById(R.id.btnClearSignature);
         Button btnLargeSignature = findViewById(R.id.btnLargeSignature);
 
-        btnBack.setOnClickListener(v -> {
-            finish();
+        // Назад (кнопка в форме и системная): заполненную форму не теряем без вопроса
+        btnBack.setOnClickListener(v -> leaveForm());
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                leaveForm();
+            }
         });
 
         btnPhotoBefore.setOnClickListener(v -> {
@@ -297,7 +309,19 @@ public class MainActivity extends AppCompatActivity {
         btnSave.setOnClickListener(v -> sendPost());
 
         Button btnClear = findViewById(R.id.btnClear);
-        btnClear.setOnClickListener(v -> clearForm());
+        // Красная кнопка прямо под «Salvesta» — без вопроса стирала фото и подпись от случайного нажатия
+        btnClear.setOnClickListener(v -> {
+            if (!hasUnsavedData()) {
+                clearForm();
+                return;
+            }
+            new AlertDialog.Builder(this)
+                    .setTitle(R.string.clear_confirm_title)
+                    .setMessage(R.string.clear_confirm_message)
+                    .setPositiveButton(R.string.btn_clear_confirm, (dialog, which) -> clearForm())
+                    .setNegativeButton(R.string.btn_cancel, null)
+                    .show();
+        });
 
         houseId = getIntent().getIntExtra("HOUSE_ID", -1);
         String houseAddress = getIntent().getStringExtra("HOUSE_ADDRESS");
@@ -318,13 +342,18 @@ public class MainActivity extends AppCompatActivity {
             applyPresetTask();
         }
 
+        // Имя монтажника — мельче адреса и задачи: это справка, а не заголовок
         String installer = InstallerPrefs.getName(this);
         if (!installer.isEmpty()) {
-            tvHouse.append("\n" + getString(R.string.installer_label, installer));
+            SpannableStringBuilder header = new SpannableStringBuilder(tvHouse.getText()).append('\n');
+            int start = header.length();
+            header.append(getString(R.string.installer_label, installer));
+            header.setSpan(new RelativeSizeSpan(0.6f), start, header.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            tvHouse.setText(header);
         }
 
-        showPreview(imgBefore, beforeFile);
-        showPreview(imgAfter, afterFile);
+        showPreview(imgBefore, tvBeforePlaceholder, beforeFile);
+        showPreview(imgAfter, tvAfterPlaceholder, afterFile);
     }
 
     @Override
@@ -525,21 +554,44 @@ public class MainActivity extends AppCompatActivity {
         if (isBeforePhoto) {
             deleteQuietly(beforeFile);
             beforeFile = taken;
-            showPreview(imgBefore, beforeFile);
+            showPreview(imgBefore, tvBeforePlaceholder, beforeFile);
         } else {
             deleteQuietly(afterFile);
             afterFile = taken;
-            showPreview(imgAfter, afterFile);
+            showPreview(imgAfter, tvAfterPlaceholder, afterFile);
         }
     }
 
-    private void showPreview(ImageView view, File file) {
+    // Надпись «Siia ilmub foto eelvaade» — только пока фото нет, иначе она лежит поверх снимка
+    private void showPreview(ImageView view, TextView placeholder, File file) {
         Bitmap preview = PhotoUtils.load(file, PhotoUtils.PREVIEW_MAX_SIDE);
         if (preview != null) {
             view.setImageBitmap(preview);
         } else {
             view.setImageDrawable(null);
         }
+        placeholder.setVisibility(preview != null ? View.GONE : View.VISIBLE);
+    }
+
+    private boolean hasUnsavedData() {
+        return !etApartment.getText().toString().trim().isEmpty()
+                || !etQrId.getText().toString().trim().isEmpty()
+                || !etLastReading.getText().toString().trim().isEmpty()
+                || beforeFile != null || afterFile != null
+                || signatureView.hasSignature();
+    }
+
+    private void leaveForm() {
+        if (sending || !hasUnsavedData()) {
+            finish();
+            return;
+        }
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.leave_confirm_title)
+                .setMessage(R.string.leave_confirm_message)
+                .setPositiveButton(R.string.btn_leave, (dialog, which) -> finish())
+                .setNegativeButton(R.string.btn_stay, null)
+                .show();
     }
 
     private static void deleteQuietly(File file) {
@@ -603,8 +655,8 @@ public class MainActivity extends AppCompatActivity {
         deleteQuietly(afterFile);
         beforeFile = null;
         afterFile = null;
-        imgBefore.setImageDrawable(null);
-        imgAfter.setImageDrawable(null);
+        showPreview(imgBefore, tvBeforePlaceholder, null);
+        showPreview(imgAfter, tvAfterPlaceholder, null);
 
         signatureView.clear();
 

@@ -364,6 +364,7 @@
                                 android:scaleType="fitCenter" />
 
                             <TextView
+                                android:id="@+id/tvBeforePlaceholder"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_gravity="center"
@@ -425,6 +426,7 @@
                             android:scaleType="fitCenter" />
 
                         <TextView
+                            android:id="@+id/tvAfterPlaceholder"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_gravity="center"
@@ -506,7 +508,6 @@
                             android:layout_weight="1"
                             android:background="@drawable/btn_selection_gray_rounded"
                             android:buttonTint="@color/elder_primary"
-                            android:checked="true"
                             android:gravity="center_vertical"
                             android:paddingStart="18dp"
                             android:text="@string/dn_15"
@@ -595,7 +596,6 @@
                             android:layout_weight="1"
                             android:background="@drawable/btn_selection_gray_rounded"
                             android:buttonTint="@color/elder_primary"
-                            android:checked="true"
                             android:gravity="center_vertical"
                             android:paddingStart="18dp"
                             android:text="@string/size_110"
