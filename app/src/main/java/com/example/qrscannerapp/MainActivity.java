@@ -289,16 +289,7 @@ public class MainActivity extends AppCompatActivity {
         scanLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
             String qr = result.getData() != null ? result.getData().getStringExtra(ScanActivity.EXTRA_RESULT) : null;
             if (qr != null) {
-                String processed = qr;
-                if (qr.contains("-") && qr.contains("/")) {
-                    int dashIndex = qr.indexOf("-");
-                    int slashIndex = qr.indexOf("/");
-                    if (dashIndex < slashIndex) {
-                        processed = qr.substring(dashIndex + 1, slashIndex);
-                    }
-                } else if (qr.length() > 6 && qr.substring(6).startsWith("1083")) {
-                    processed = qr.substring(6);
-                }
+                String processed = QrParser.parse(qr);
                 etQrId.setText(processed);
                 etQrId.setError(null);
                 Toast.makeText(this, "QR: " + processed, Toast.LENGTH_SHORT).show();
